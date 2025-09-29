@@ -305,32 +305,43 @@
         .keyboard-row {
             display: flex;
             justify-content: center;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
         }
         
         .keyboard-key {
-            width: 60px;
-            height: 50px;
-            margin: 3px;
+            flex: 1;
+            height: 40px;
+            margin: 1px;
             background: #fff;
             color: #333;
             border: none;
-            border-radius: 5px;
-            font-size: 1.3rem;
+            border-radius: 3px;
+            font-size: 1.1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-width: 0;
         }
         
         .keyboard-key-wide {
-            width: 130px;
+            flex: 2;
         }
         
         .keyboard-close {
             background: #4caf50;
             color: white;
-            font-size: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .keyboard-backspace {
+            background: #f44336;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .keyboard-symbol {
+            background: #ddd;
         }
         
         .data-grid {
@@ -414,7 +425,10 @@
                     <option value="nba">NBA (4×12 мин)</option>
                     <option value="fiba">ФИБА (4×10 мин)</option>
                     <option value="three3">3×3 (4×10 мин)</option>
+                    <option value="three3_12min">3×3 (4×12 мин)</option>
+                    <option value="four4">4×4 (2×10 мин)</option>
                     <option value="cyber">Кибербаскетбол (4×5 мин)</option>
+                    <option value="cyber4">Кибербаскетбол (4×4 мин)</option>
                 </select>
             </div>
             <div class="control-select">
@@ -554,23 +568,29 @@
         </footer>
     </div>
 
-    <!-- Кастомная клавиатура -->
+    <!-- Обновленная кастомная клавиатура -->
     <div class="custom-keyboard" id="custom-keyboard">
         <div class="keyboard-row">
             <button class="keyboard-key" data-key="1">1</button>
             <button class="keyboard-key" data-key="2">2</button>
             <button class="keyboard-key" data-key="3">3</button>
-        </div>
-        <div class="keyboard-row">
             <button class="keyboard-key" data-key="4">4</button>
             <button class="keyboard-key" data-key="5">5</button>
-            <button class="keyboard-key" data-key="6">6</button>
         </div>
         <div class="keyboard-row">
+            <button class="keyboard-key" data-key="6">6</button>
             <button class="keyboard-key" data-key="7">7</button>
             <button class="keyboard-key" data-key="8">8</button>
             <button class="keyboard-key" data-key="9">9</button>
             <button class="keyboard-key" data-key="0">0</button>
+        </div>
+        <div class="keyboard-row">
+            <button class="keyboard-key keyboard-symbol" data-key=":">:</button>
+            <button class="keyboard-key keyboard-symbol" data-key=".">.</button>
+            <button class="keyboard-key keyboard-symbol" data-key=",">,</button>
+            <button class="keyboard-key keyboard-backspace" id="keyboard-backspace">
+                <i class="fas fa-backspace"></i>
+            </button>
         </div>
         <div class="keyboard-row">
             <button class="keyboard-key keyboard-close keyboard-key-wide" id="keyboard-close">Готово</button>
@@ -578,12 +598,15 @@
     </div>
 
     <script>
-        // Конфигурация чемпионатов
+        // Обновленная конфигурация чемпионатов с добавлением новых лиг
         const championships = {
             'nba': { name: 'NBA (4×12 мин)', periods: 4, periodLength: 12, otLength: 5, description: '4 периода по 12 минут, овертайм 5 минут' },
             'fiba': { name: 'ФИБА (4×10 мин)', periods: 4, periodLength: 10, otLength: 5, description: '4 периода по 10 минут, овертайм 5 минут' },
             'three3': { name: '3×3 (4×10 мин)', periods: 4, periodLength: 10, otLength: 2, description: '4 периода по 10 минут, овертайм 2 минуты' },
-            'cyber': { name: 'Кибербаскетбол (4×5 мин)', periods: 4, periodLength: 5, otLength: 2, description: '4 периода по 5 минут, овертайм 2 минуты' }
+            'three3_12min': { name: '3×3 (4×12 мин)', periods: 4, periodLength: 12, otLength: 2, description: '4 периода по 12 минут, овертайм 2 минуты' },
+            'four4': { name: '4×4 (2×10 мин)', periods: 2, periodLength: 10, otLength: 5, description: '2 периода по 10 минут, овертайм 5 минут' },
+            'cyber': { name: 'Кибербаскетбол (4×5 мин)', periods: 4, periodLength: 5, otLength: 2, description: '4 периода по 5 минут, овертайм 2 минуты' },
+            'cyber4': { name: 'Кибербаскетбол (4×4 мин)', periods: 4, periodLength: 4, otLength: 2, description: '4 периода по 4 минуты, овертайм 2 минуты' }
         };
 
         // Текущий выбранный чемпионат
@@ -606,7 +629,7 @@
             const knownFullMoon = new Date(Date.UTC(2000, 0, 6, 18, 14, 0));
             const lunarCycle = 29.530588853; // дней в лунном цикле
             
-            // Вычисляем разницу в днях
+            // Вычисляем разницу в днями
             const diffInMs = date - knownFullMoon;
             const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
             
@@ -905,7 +928,7 @@
                 `<i class="fas fa-moon moon-icon"></i>Фаза Луны: ${moonPhaseName} (влияние: ${((currentMoonInfluence.influence - 1) * 100).toFixed(1)}%)`;
             
             const champ = championships[currentChampionship];
-            const isCyber = champ.periodLength === 5;
+            const isCyber = champ.periodLength <= 5;
 
             // Получаем значения из формы
             const currentPeriod = document.getElementById('current-period').value;
