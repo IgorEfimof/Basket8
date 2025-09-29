@@ -602,15 +602,64 @@
     </div>
 
     <script>
-        // Обновленная конфигурация чемпионатов с добавлением новых лиг
+        // Обновленная конфигурация чемпионатов с реалистичными средними значениями
         const championships = {
-            'nba': { name: 'NBA (4×12 мин)', periods: 4, periodLength: 12, otLength: 5, description: '4 периода по 12 минут, овертайм 5 минут' },
-            'fiba': { name: 'ФИБА (4×10 мин)', periods: 4, periodLength: 10, otLength: 5, description: '4 периода по 10 минут, овертайм 5 минут' },
-            'three3': { name: '3×3 (4×10 мин)', periods: 4, periodLength: 10, otLength: 2, description: '4 периода по 10 минут, овертайм 2 минуты' },
-            'three3_12min': { name: '3×3 (4×12 мин)', periods: 4, periodLength: 12, otLength: 2, description: '4 периода по 12 минут, овертайм 2 минуты' },
-            'four4': { name: '4×4 (2×10 мин)', periods: 2, periodLength: 10, otLength: 5, description: '2 периода по 10 минут, овертайм 5 минут' },
-            'cyber': { name: 'Кибербаскетбол (4×5 мин)', periods: 4, periodLength: 5, otLength: 2, description: '4 периода по 5 минут, овертайм 2 минуты' },
-            'cyber4': { name: 'Кибербаскетбол (4×4 мин)', periods: 4, periodLength: 4, otLength: 2, description: '4 периода по 4 минуты, овертайм 2 минуты' }
+            'nba': { 
+                name: 'NBA (4×12 мин)', 
+                periods: 4, 
+                periodLength: 12, 
+                otLength: 5, 
+                description: '4 периода по 12 минут, овертайм 5 минут',
+                avgPoints: 55
+            },
+            'fiba': { 
+                name: 'ФИБА (4×10 мин)', 
+                periods: 4, 
+                periodLength: 10, 
+                otLength: 5, 
+                description: '4 периода по 10 минут, овертайм 5 минут',
+                avgPoints: 45
+            },
+            'three3': { 
+                name: '3×3 (4×10 мин)', 
+                periods: 4, 
+                periodLength: 10, 
+                otLength: 2, 
+                description: '3 на 3, 4 периода по 10 минут, овертайм 2 минуты',
+                avgPoints: 35
+            },
+            'three3_12min': { 
+                name: '3×3 (4×12 мин)', 
+                periods: 4, 
+                periodLength: 12, 
+                otLength: 2, 
+                description: '3 на 3, 4 периода по 12 минут, овертайм 2 минуты',
+                avgPoints: 40
+            },
+            'four4': { 
+                name: '4×4 (2×10 мин)', 
+                periods: 2, 
+                periodLength: 10, 
+                otLength: 5, 
+                description: '4 на 4, 2 периода по 10 минут, овертайм 5 минут',
+                avgPoints: 50
+            },
+            'cyber': { 
+                name: 'Кибербаскетбол (4×5 мин)', 
+                periods: 4, 
+                periodLength: 5, 
+                otLength: 2, 
+                description: '4 периода по 5 минут, овертайм 2 минуты',
+                avgPoints: 25
+            },
+            'cyber4': { 
+                name: 'Кибербаскетбол (4×4 мин)', 
+                periods: 4, 
+                periodLength: 4, 
+                otLength: 2, 
+                description: '4 периода по 4 минуты, овертайм 2 минуты',
+                avgPoints: 20
+            }
         };
 
         // Текущий выбранный чемпионат
@@ -687,6 +736,13 @@
             return { influence, note };
         }
 
+        // Функция для установки средних очков при смене лиги
+        function setDefaultAvgPoints() {
+            const champ = championships[currentChampionship];
+            const avgPoints = champ.avgPoints;
+            document.getElementById('avg-points').value = avgPoints;
+        }
+
         // Обновление текущего времени
         function updateTime() {
             const now = new Date();
@@ -703,6 +759,7 @@
             currentChampionship = this.value;
             const champ = championships[currentChampionship];
             document.getElementById('championship-info').textContent = `Формат: ${champ.description}`;
+            setDefaultAvgPoints();
             calculatePredictions();
         });
         
@@ -868,7 +925,7 @@
                 // Очищаем поля ввода
                 document.getElementById('time-remaining').value = '';
                 document.getElementById('total-points').value = '';
-                document.getElementById('avg-points').value = '45';
+                setDefaultAvgPoints();
 
                 // Сбрасываем период
                 document.getElementById('current-period').value = '3';
@@ -919,7 +976,7 @@
             document.getElementById('match-time-editable').innerHTML = `${periodText}${timeDisplay}`;
         }
         
-        // Функция расчета прогнозов с учетом пола и лунных циклов
+        // Функция расчета прогнозов с учетом пола и лунных циклов - ИСПРАВЛЕННАЯ
         function calculatePredictions() {
             // Получаем текущую дату и рассчитываем фазу Луны
             const currentDate = new Date();
@@ -938,7 +995,7 @@
             const currentPeriod = document.getElementById('current-period').value;
             const timeRemaining = document.getElementById('time-remaining').value;
             const totalPoints = parseInt(document.getElementById('total-points').value) || 0;
-            const avgPoints = parseInt(document.getElementById('avg-points').value) || (isCyber ? 45 : 45);
+            const avgPoints = parseInt(document.getElementById('avg-points').value) || champ.avgPoints;
             
             // Парсим оставшееся время
             const timeParts = timeRemaining.split(':');
@@ -946,53 +1003,81 @@
             const remainingSeconds = parseInt(timeParts[1]) || 0;
             const totalRemainingSeconds = remainingMinutes * 60 + remainingSeconds;
             
-            // Рассчитываем прошедшее время в зависимости от периода и формата
-            let elapsedMinutes;
-            let isOvertime = currentPeriod === 'ot' || parseInt(currentPeriod) > champ.periods;
+            // РАСЧЕТ ПРОШЕДШЕГО ВРЕМЕНИ - ИСПРАВЛЕННЫЙ
+            let elapsedMinutes = 0;
+            let isOvertime = false;
+            let periodsCompleted = 0;
             
-            if (!isOvertime) {
-                const periodNum = parseInt(currentPeriod);
-                elapsedMinutes = (champ.periodLength * (periodNum - 1)) + (champ.periodLength - (totalRemainingSeconds / 60));
+            if (currentPeriod === 'ot') {
+                isOvertime = true;
+                // Регулярное время полностью сыграно + часть овертайма
+                periodsCompleted = champ.periods;
+                elapsedMinutes = (champ.periodLength * periodsCompleted) + 
+                                (champ.otLength - (totalRemainingSeconds / 60));
             } else {
-                const overtimeNum = currentPeriod === 'ot' ? 1 : parseInt(currentPeriod) - champ.periods;
-                elapsedMinutes = (champ.periodLength * champ.periods) + (champ.otLength * (overtimeNum - 1)) + (champ.otLength - (totalRemainingSeconds / 60));
+                const periodNum = parseInt(currentPeriod);
+                isOvertime = periodNum > champ.periods;
+                
+                if (!isOvertime) {
+                    periodsCompleted = periodNum - 1;
+                    elapsedMinutes = (champ.periodLength * periodsCompleted) + 
+                                    (champ.periodLength - (totalRemainingSeconds / 60));
+                } else {
+                    // Многократный овертайм
+                    const overtimeNum = periodNum - champ.periods;
+                    periodsCompleted = champ.periods + (overtimeNum - 1);
+                    elapsedMinutes = (champ.periodLength * champ.periods) + 
+                                    (champ.otLength * (overtimeNum - 1)) + 
+                                    (champ.otLength - (totalRemainingSeconds / 60));
+                }
             }
             
-            // Рассчитываем текущий темп игры (очков в минуту)
-            const gamePace = totalPoints > 0 ? (totalPoints / elapsedMinutes).toFixed(2) : "0.00";
+            // Рассчитываем текущий темп игры (очков в минуту) - ИСПРАВЛЕННЫЙ
+            const gamePace = elapsedMinutes > 0 ? (totalPoints / elapsedMinutes).toFixed(2) : (avgPoints / champ.periodLength).toFixed(2);
             
             // Учет пола спортсменов для корректировки прогноза
             let genderFactor = 1.0;
             if (currentGender === 'men') {
-                genderFactor = 1.1; // Мужчины играют в более быстрый баскетбол
+                genderFactor = 1.05; // Мужчины +5%
             } else {
-                genderFactor = 0.95; // Женщины играют в более медленный баскетбол
+                genderFactor = 0.95; // Женщины -5%
             }
             
             // Корректируем темп игры на основе пола и влияния Луны
             const adjustedGamePace = (parseFloat(gamePace) * genderFactor * currentMoonInfluence.influence).toFixed(2);
             
-            // Прогнозируем общее количество очков в матчах
+            // ПРОГНОЗ ОБЩЕГО КОЛИЧЕСТВА ОЧКОВ - ИСПРАВЛЕННЫЙ
             let totalProjected;
+            let remainingRegularTime = 0;
+            
             if (!isOvertime) {
-                const remainingTime = (champ.periodLength * champ.periods) - elapsedMinutes;
-                totalProjected = Math.round(totalPoints + (parseFloat(adjustedGamePace) * remainingTime));
+                const periodNum = parseInt(currentPeriod);
+                // Оставшееся регулярное время
+                remainingRegularTime = (champ.periodLength * (champ.periods - periodNum)) + (totalRemainingSeconds / 60);
+                totalProjected = Math.round(totalPoints + (parseFloat(adjustedGamePace) * remainingRegularTime));
             } else {
-                const overtimeNum = currentPeriod === 'ot' ? 1 : parseInt(currentPeriod) - champ.periods;
-                const remainingTime = (champ.otLength * (overtimeNum)) - (champ.otLength - (totalRemainingSeconds / 60));
-                totalProjected = Math.round(totalPoints + (parseFloat(adjustedGamePace) * remainingTime));
+                // В овертайме прогнозируем только до конца текущего овертайма
+                const remainingOvertime = totalRemainingSeconds / 60;
+                totalProjected = Math.round(totalPoints + (parseFloat(adjustedGamePace) * remainingOvertime));
             }
             
-            // Прогноз на конец периода
-            const periodProjection = Math.round((parseFloat(adjustedGamePace) * (isOvertime ? champ.otLength : champ.periodLength)));
+            // Прогноз на конец периода - ИСПРАВЛЕННЫЙ
+            let periodProjection;
+            if (!isOvertime) {
+                periodProjection = Math.round(parseFloat(adjustedGamePace) * champ.periodLength);
+            } else {
+                periodProjection = Math.round(parseFloat(adjustedGamePace) * champ.otLength);
+            }
             
-            // Рекомендация по тоталу
+            // Рекомендация по тоталу - ИСПРАВЛЕННАЯ
             const avgTotal = champ.periods * avgPoints;
             let totalRecommendation;
             
-            if (totalProjected > avgTotal + 5) {
+            if (isOvertime) {
+                totalRecommendation = "Овертайм - осторожно";
+            } else if (totalProjected > avgTotal + 10) {
                 totalRecommendation = "Высокий темп - БОЛЬШЕ";
-            } else if (totalProjected < avgTotal - 5) {
+            } else if (totalProjected < avgTotal - 10) {
                 totalRecommendation = "Низкий темп - МЕНЬШЕ";
             } else {
                 totalRecommendation = "Средний темп - НЕЙТРАЛЬНО";
@@ -1000,25 +1085,35 @@
             
             // Отображаем влияние времени на прогноз
             let timeImpactText = "";
-            if (parseFloat(adjustedGamePace) > 2.0) {
+            const paceValue = parseFloat(adjustedGamePace);
+            
+            if (paceValue > 2.0) {
                 timeImpactText = "Очень высокий темп игры";
-            } else if (parseFloat(adjustedGamePace) > 1.8) {
+            } else if (paceValue > 1.7) {
                 timeImpactText = "Высокий темп игры";
-            } else if (parseFloat(adjustedGamePace) > 1.5) {
+            } else if (paceValue > 1.4) {
                 timeImpactText = "Средний темп игры";
             } else {
                 timeImpactText = "Низкий темп игры";
             }
             
+            // Добавляем информацию о времени
+            if (!isOvertime) {
+                timeImpactText += ` (осталось ${remainingRegularTime.toFixed(1)} мин)`;
+            } else {
+                timeImpactText += " (овертайм)";
+            }
+            
             // Обновляем UI с результатами
             document.getElementById('predicted-total').textContent = totalProjected;
             document.getElementById('predicted-total').className = 'result-value ' + 
-                (totalProjected > avgTotal ? 'positive' : 'negative');
+                (totalProjected > avgTotal && !isOvertime ? 'positive' : 
+                 totalProjected < avgTotal && !isOvertime ? 'negative' : 'neutral');
                 
             document.getElementById('game-pace').textContent = adjustedGamePace + " очков/минуту";
             document.getElementById('game-pace').className = 'result-value neutral';
             
-            document.getElementById('period-prediction').textContent = periodProjection + " очков за период";
+            document.getElementById('period-prediction').textContent = periodProjection + " очков";
             document.getElementById('period-prediction').className = 'result-value neutral';
             
             document.getElementById('total-recommendation').textContent = totalRecommendation;
@@ -1029,7 +1124,7 @@
             document.getElementById('time-impact').textContent = timeImpactText;
             
             // Обновляем отображение темпа игры
-            document.getElementById('pace-display').textContent = adjustedGamePace + " очков/мин";
+            document.getElementById('pace-display').textContent = adjustedGamePace;
         }
         
         // Автоматический расчет при изменении данных
@@ -1054,6 +1149,7 @@
         
         // Инициализация расчетов при загрузке
         window.addEventListener('load', function() {
+            setDefaultAvgPoints();
             updateMatchTimeDisplay();
             updateDataDisplay();
             calculatePredictions();
