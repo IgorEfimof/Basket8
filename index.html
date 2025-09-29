@@ -27,6 +27,8 @@
             --positive-color: #4caf50;
             --negative-color: #f44336;
             --neutral-color: #2196f3;
+            --men-color: #3498db;
+            --women-color: #e91e63;
         }
         
         body {
@@ -47,6 +49,27 @@
             border-radius: 0;
             padding: 15px;
             box-shadow: none;
+        }
+        
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .control-select {
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: var(--input-bg);
+            color: var(--input-color);
+            font-size: 0.85rem;
         }
         
         header {
@@ -286,14 +309,14 @@
         }
         
         .keyboard-key {
-            width: 45px;
-            height: 35px;
+            width: 60px;
+            height: 50px;
             margin: 3px;
             background: #fff;
             color: #333;
             border: none;
             border-radius: 5px;
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -301,21 +324,13 @@
         }
         
         .keyboard-key-wide {
-            width: 70px;
-        }
-        
-        .keyboard-key-extra-wide {
-            width: 100px;
+            width: 130px;
         }
         
         .keyboard-close {
-            background: #f44336;
+            background: #4caf50;
             color: white;
-        }
-        
-        .keyboard-backspace {
-            background: #ff9800;
-            color: white;
+            font-size: 1rem;
         }
         
         .data-grid {
@@ -377,10 +392,39 @@
         body {
             touch-action: manipulation;
         }
+        
+        .moon-phase-display {
+            font-size: 0.8rem;
+            margin-top: 4px;
+            color: #9c88ff;
+            font-style: italic;
+        }
+        
+        .moon-icon {
+            margin-right: 5px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="header-controls">
+            <div class="control-select">
+                <select id="championship-select">
+                    <option value="nba">NBA (4×12 мин)</option>
+                    <option value="fiba">ФИБА (4×10 мин)</option>
+                    <option value="three3">3×3 (4×10 мин)</option>
+                    <option value="cyber">Кибербаскетбол (4×5 мин)</option>
+                </select>
+            </div>
+            <div class="control-select">
+                <select id="gender-select">
+                    <option value="men">Мужчины</option>
+                    <option value="women">Женщины</option>
+                </select>
+            </div>
+        </div>
+        
         <header>
             <h1>Баскетбол. Калькулятор тотала</h1>
             <div class="match-details">
@@ -489,6 +533,14 @@
                     <div class="result-title">Рекомендация по тоталу:</div>
                     <div class="result-value" id="total-recommendation">--</div>
                 </div>
+                
+                <div class="result-card full-width">
+                    <div class="result-title">Влияние времени на прогноз:</div>
+                    <div class="result-value" id="time-impact">--</div>
+                    <div class="moon-phase-display" id="moon-phase-display">
+                        <i class="fas fa-moon moon-icon"></i>Фаза Луны: рассчитывается...
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -508,24 +560,20 @@
             <button class="keyboard-key" data-key="1">1</button>
             <button class="keyboard-key" data-key="2">2</button>
             <button class="keyboard-key" data-key="3">3</button>
-            <button class="keyboard-key" data-key="4">4</button>
-            <button class="keyboard-key" data-key="5">5</button>
         </div>
         <div class="keyboard-row">
+            <button class="keyboard-key" data-key="4">4</button>
+            <button class="keyboard-key" data-key="5">5</button>
             <button class="keyboard-key" data-key="6">6</button>
+        </div>
+        <div class="keyboard-row">
             <button class="keyboard-key" data-key="7">7</button>
             <button class="keyboard-key" data-key="8">8</button>
             <button class="keyboard-key" data-key="9">9</button>
             <button class="keyboard-key" data-key="0">0</button>
         </div>
         <div class="keyboard-row">
-            <button class="keyboard-key" data-key=".">.</button>
-            <button class="keyboard-key" data-key=":">:</button>
-            <button class="keyboard-key" data-key="/">/</button>
-        </div>
-        <div class="keyboard-row">
-            <button class="keyboard-key keyboard-backspace" id="keyboard-backspace">⌫</button>
-            <button class="keyboard-key keyboard-close" id="keyboard-close">Готово</button>
+            <button class="keyboard-key keyboard-close keyboard-key-wide" id="keyboard-close">Готово</button>
         </div>
     </div>
 
@@ -533,16 +581,85 @@
         // Конфигурация чемпионатов
         const championships = {
             'nba': { name: 'NBA (4×12 мин)', periods: 4, periodLength: 12, otLength: 5, description: '4 периода по 12 минут, овертайм 5 минут' },
-            'fiba': { name: 'ФИБА (4×10 мин)', periods: 4, periodLength: 10, otLength: 5, description: '4 периода по 10 минут, овертайм 5 минут' }
+            'fiba': { name: 'ФИБА (4×10 мин)', periods: 4, periodLength: 10, otLength: 5, description: '4 периода по 10 минут, овертайм 5 минут' },
+            'three3': { name: '3×3 (4×10 мин)', periods: 4, periodLength: 10, otLength: 2, description: '4 периода по 10 минут, овертайм 2 минуты' },
+            'cyber': { name: 'Кибербаскетбол (4×5 мин)', periods: 4, periodLength: 5, otLength: 2, description: '4 периода по 5 минут, овертайм 2 минуты' }
         };
 
         // Текущий выбранный чемпионат
         let currentChampionship = 'nba';
         
-        // Глобальные переменные для хранения данных
+        // Текущий выбранный пол
+        let currentGender = 'men';
+        
+        // Глобальные переменные для хранения данных анализа
+        let currentMoonPhase = 0;
+        let currentMoonInfluence = { influence: 1, note: "" };
+        
+        // Глобальные переменные для хранения данных ввода
         let activeInput = null;
         const keyboard = document.getElementById('custom-keyboard');
         
+        // Функция для расчета текущей фазы Луны
+        function calculateMoonPhase(date) {
+            // Известная эпоха: 6 января 2000 года 18:14 UTC (полнолуние)
+            const knownFullMoon = new Date(Date.UTC(2000, 0, 6, 18, 14, 0));
+            const lunarCycle = 29.530588853; // дней в лунном цикле
+            
+            // Вычисляем разницу в днях
+            const diffInMs = date - knownFullMoon;
+            const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+            
+            // Вычисляем текущую фазу
+            let phase = (diffInDays % lunarCycle) / lunarCycle;
+            if (phase < 0) phase += 1; // нормализуем от 0 до 1
+            
+            return phase;
+        }
+        
+        // Функция для определения названия фазы Луны
+        function getMoonPhaseName(phase) {
+            if (phase < 0.03 || phase >= 0.97) return "Новолуние";
+            if (phase < 0.22) return "Растущая луна";
+            if (phase < 0.28) return "Первая четверть";
+            if (phase < 0.47) return "Прибывающая луна";
+            if (phase < 0.53) return "Полнолуние";
+            if (phase < 0.72) return "Убывающая луна";
+            if (phase < 0.78) return "Последняя четверть";
+            return "Стареющая луна";
+        }
+        
+        // Функция для расчета влияния Луны на команды
+        function calculateMoonInfluence(moonPhase, gender) {
+            let influence = 1.0;
+            let note = "";
+            
+            // Определяем, является ли фаза особенной
+            const isNewMoon = moonPhase < 0.03 || moonPhase >= 0.97;
+            const isFullMoon = moonPhase >= 0.47 && moonPhase < 0.53;
+            const isQuarterMoon = (moonPhase >= 0.22 && moonPhase < 0.28) || (moonPhase >= 0.72 && moonPhase < 0.78);
+            
+            if (isFullMoon) {
+                if (gender === 'men') {
+                    influence = 1.05; // +5% к эффективности для мужчин в полнолуние
+                    note = "Полнолуние: повышение агрессии и результативности у мужских команд";
+                } else {
+                    influence = 1.03; // +3% к эффективности для женщин в полнолуние
+                    note = "Полнолуние: улучшение точности бросков у женских команд";
+                }
+            } else if (isNewMoon) {
+                influence = 0.99; // -1% к эффективности в новолуние
+                note = "Новолуние: небольшое снижение эффективности для всех";
+            } else if (isQuarterMoon) {
+                influence = 1.01; // +1% к эффективности в четверти
+                note = "Фаза четверти: небольшое повышение активности";
+            } else {
+                note = "Нормальное лунное влияние";
+            }
+            
+            return { influence, note };
+        }
+
         // Обновление текущего времени
         function updateTime() {
             const now = new Date();
@@ -553,6 +670,19 @@
         // Обновляем время каждую секунду
         setInterval(updateTime, 1000);
         updateTime(); // initial call
+        
+        // Обработчики для выбора чемпионата и пола
+        document.getElementById('championship-select').addEventListener('change', function() {
+            currentChampionship = this.value;
+            const champ = championships[currentChampionship];
+            document.getElementById('championship-info').textContent = `Формат: ${champ.description}`;
+            calculatePredictions();
+        });
+        
+        document.getElementById('gender-select').addEventListener('change', function() {
+            currentGender = this.value;
+            calculatePredictions();
+        });
         
         // Предотвращаем появление системной клавиатуры
         document.addEventListener('touchstart', function(e) {
@@ -732,6 +862,7 @@
                 document.getElementById('game-pace').textContent = '--';
                 document.getElementById('period-prediction').textContent = '--';
                 document.getElementById('total-recommendation').textContent = '--';
+                document.getElementById('time-impact').textContent = '--';
             }
         });
         
@@ -761,8 +892,18 @@
             document.getElementById('match-time-editable').innerHTML = `${periodText}${timeDisplay}`;
         }
         
-        // Функция расчета прогнозов
+        // Функция расчета прогнозов с учетом пола и лунных циклов
         function calculatePredictions() {
+            // Получаем текущую дату и рассчитываем фазу Луны
+            const currentDate = new Date();
+            currentMoonPhase = calculateMoonPhase(currentDate);
+            const moonPhaseName = getMoonPhaseName(currentMoonPhase);
+            currentMoonInfluence = calculateMoonInfluence(currentMoonPhase, currentGender);
+            
+            // Обновляем отображение информации о Луне
+            document.getElementById('moon-phase-display').innerHTML = 
+                `<i class="fas fa-moon moon-icon"></i>Фаза Луны: ${moonPhaseName} (влияние: ${((currentMoonInfluence.influence - 1) * 100).toFixed(1)}%)`;
+            
             const champ = championships[currentChampionship];
             const isCyber = champ.periodLength === 5;
 
@@ -793,19 +934,30 @@
             // Рассчитываем текущий темп игры (очков в минуту)
             const gamePace = totalPoints > 0 ? (totalPoints / elapsedMinutes).toFixed(2) : "0.00";
             
+            // Учет пола спортсменов для корректировки прогноза
+            let genderFactor = 1.0;
+            if (currentGender === 'men') {
+                genderFactor = 1.1; // Мужчины играют в более быстрый баскетбол
+            } else {
+                genderFactor = 0.95; // Женщины играют в более медленный баскетбол
+            }
+            
+            // Корректируем темп игры на основе пола и влияния Луны
+            const adjustedGamePace = (parseFloat(gamePace) * genderFactor * currentMoonInfluence.influence).toFixed(2);
+            
             // Прогнозируем общее количество очков в матчах
             let totalProjected;
             if (!isOvertime) {
                 const remainingTime = (champ.periodLength * champ.periods) - elapsedMinutes;
-                totalProjected = Math.round(totalPoints + (parseFloat(gamePace) * remainingTime));
+                totalProjected = Math.round(totalPoints + (parseFloat(adjustedGamePace) * remainingTime));
             } else {
                 const overtimeNum = currentPeriod === 'ot' ? 1 : parseInt(currentPeriod) - champ.periods;
                 const remainingTime = (champ.otLength * (overtimeNum)) - (champ.otLength - (totalRemainingSeconds / 60));
-                totalProjected = Math.round(totalPoints + (parseFloat(gamePace) * remainingTime));
+                totalProjected = Math.round(totalPoints + (parseFloat(adjustedGamePace) * remainingTime));
             }
             
             // Прогноз на конец периода
-            const periodProjection = Math.round((parseFloat(gamePace) * (isOvertime ? champ.otLength : champ.periodLength)));
+            const periodProjection = Math.round((parseFloat(adjustedGamePace) * (isOvertime ? champ.otLength : champ.periodLength)));
             
             // Рекомендация по тоталу
             const avgTotal = champ.periods * avgPoints;
@@ -819,12 +971,24 @@
                 totalRecommendation = "Средний темп - НЕЙТРАЛЬНО";
             }
             
+            // Отображаем влияние времени на прогноз
+            let timeImpactText = "";
+            if (parseFloat(adjustedGamePace) > 2.0) {
+                timeImpactText = "Очень высокий темп игры";
+            } else if (parseFloat(adjustedGamePace) > 1.8) {
+                timeImpactText = "Высокий темп игры";
+            } else if (parseFloat(adjustedGamePace) > 1.5) {
+                timeImpactText = "Средний темп игры";
+            } else {
+                timeImpactText = "Низкий темп игры";
+            }
+            
             // Обновляем UI с результатами
             document.getElementById('predicted-total').textContent = totalProjected;
             document.getElementById('predicted-total').className = 'result-value ' + 
                 (totalProjected > avgTotal ? 'positive' : 'negative');
                 
-            document.getElementById('game-pace').textContent = gamePace + " очков/минуту";
+            document.getElementById('game-pace').textContent = adjustedGamePace + " очков/минуту";
             document.getElementById('game-pace').className = 'result-value neutral';
             
             document.getElementById('period-prediction').textContent = periodProjection + " очков за период";
@@ -835,8 +999,10 @@
                 (totalRecommendation.includes('БОЛЬШЕ') ? 'positive' : 
                  totalRecommendation.includes('МЕНЬШЕ') ? 'negative' : 'neutral');
             
+            document.getElementById('time-impact').textContent = timeImpactText;
+            
             // Обновляем отображение темпа игры
-            document.getElementById('pace-display').textContent = gamePace + " очков/мин";
+            document.getElementById('pace-display').textContent = adjustedGamePace + " очков/мин";
         }
         
         // Автоматический расчет при изменении данных
