@@ -408,16 +408,64 @@
             touch-action: manipulation;
         }
         
-        .moon-phase-display {
+        .moon-phase-display, .day-factor-display, .fatigue-factor-display {
             font-size: 0.8rem;
             margin-top: 4px;
-            color: #9c88ff;
             font-style: italic;
+            padding: 4px 0;
         }
         
         .moon-icon {
             margin-right: 5px;
             font-size: 0.9rem;
+        }
+        
+        .day-icon, .fatigue-icon {
+            margin-right: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .factor-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .factor-name {
+            font-weight: bold;
+        }
+        
+        .factor-value {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .factor-positive {
+            color: var(--positive-color);
+        }
+        
+        .factor-negative {
+            color: var(--negative-color);
+        }
+        
+        .factor-neutral {
+            color: var(--neutral-color);
+        }
+        
+        .gender-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .gender-icon {
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -553,10 +601,33 @@
                 </div>
                 
                 <div class="result-card full-width">
-                    <div class="result-title">Влияние времени на прогноз:</div>
+                    <div class="result-title">Факторы влияния на прогноз:</div>
                     <div class="result-value" id="time-impact">--</div>
-                    <div class="moon-phase-display" id="moon-phase-display">
-                        <i class="fas fa-moon moon-icon"></i>Фаза Луны: рассчитывается...
+                    
+                    <div class="factor-display">
+                        <div class="factor-name">
+                            <i class="fas fa-moon moon-icon"></i>Фаза Луны:
+                        </div>
+                        <div class="factor-value" id="moon-factor">--</div>
+                    </div>
+                    
+                    <div class="factor-display">
+                        <div class="factor-name">
+                            <i class="fas fa-calendar-day day-icon"></i>День недели:
+                        </div>
+                        <div class="factor-value" id="day-factor">--</div>
+                    </div>
+                    
+                    <div class="factor-display">
+                        <div class="factor-name">
+                            <i class="fas fa-clock fatigue-icon"></i>Усталость команд:
+                        </div>
+                        <div class="factor-value" id="fatigue-factor">--</div>
+                    </div>
+                    
+                    <div class="gender-display">
+                        <i class="fas fa-venus-mars gender-icon"></i>
+                        <div class="gender-name" id="gender-factor">--</div>
                     </div>
                 </div>
             </div>
@@ -662,6 +733,25 @@
             }
         };
 
+        // Коэффициенты влияния дней недели
+        const dayFactors = {
+            0: { name: "Воскресенье", factor: 1.05, description: "Выходной - высокая активность" }, // воскресенье
+            1: { name: "Понедельник", factor: 0.95, description: "Начало недели - низкая активность" }, // понедельник
+            2: { name: "Вторник", factor: 1.0, description: "Средняя активность" }, // вторник
+            3: { name: "Среда", factor: 1.0, description: "Средняя активность" }, // среда
+            4: { name: "Четверг", factor: 1.05, description: "Повышенная активность" }, // четверг
+            5: { name: "Пятница", factor: 1.1, description: "Конец недели - высокая активность" }, // пятница
+            6: { name: "Суббота", factor: 1.1, description: "Выходной - высокая активность" } // суббота
+        };
+
+        // Коэффициенты усталости по времени суток
+        const fatigueFactors = {
+            'morning': { name: "Утро (6:00-12:00)", factor: 1.0, description: "Свежие команды" },
+            'afternoon': { name: "День (12:00-18:00)", factor: 0.98, description: "Легкая усталость" },
+            'evening': { name: "Вечер (18:00-24:00)", factor: 0.95, description: "Средняя усталость" },
+            'night': { name: "Ночь (0:00-6:00)", factor: 0.9, description: "Сильная усталость" }
+        };
+
         // Текущий выбранный чемпионат
         let currentChampionship = 'nba';
         
@@ -675,6 +765,14 @@
         // Глобальные переменные для хранения данных ввода
         let activeInput = null;
         const keyboard = document.getElementById('custom-keyboard');
+        
+        // Функция для определения временного интервала
+        function getTimeInterval(hours) {
+            if (hours >= 6 && hours < 12) return 'morning';
+            if (hours >= 12 && hours < 18) return 'afternoon';
+            if (hours >= 18 && hours < 24) return 'evening';
+            return 'night';
+        }
         
         // Функция для расчета текущей фазы Луны
         function calculateMoonPhase(date) {
@@ -947,6 +1045,10 @@
                 document.getElementById('period-prediction').textContent = '--';
                 document.getElementById('total-recommendation').textContent = '--';
                 document.getElementById('time-impact').textContent = '--';
+                document.getElementById('moon-factor').textContent = '--';
+                document.getElementById('day-factor').textContent = '--';
+                document.getElementById('fatigue-factor').textContent = '--';
+                document.getElementById('gender-factor').textContent = '--';
             }
         });
         
@@ -984,9 +1086,26 @@
             const moonPhaseName = getMoonPhaseName(currentMoonPhase);
             currentMoonInfluence = calculateMoonInfluence(currentMoonPhase, currentGender);
             
-            // Обновляем отображение информации о Луне
-            document.getElementById('moon-phase-display').innerHTML = 
-                `<i class="fas fa-moon moon-icon"></i>Фаза Луны: ${moonPhaseName} (влияние: ${((currentMoonInfluence.influence - 1) * 100).toFixed(1)}%)`;
+            // Определяем день недели и коэффициент влияния
+            const dayOfWeek = currentDate.getDay();
+            const dayFactor = dayFactors[dayOfWeek];
+            
+            // Определяем временной интервал и коэффициент усталости
+            const hours = currentDate.getHours();
+            const timeInterval = getTimeInterval(hours);
+            const fatigueFactor = fatigueFactors[timeInterval];
+            
+            // Обновляем отображение информации о факторах
+            document.getElementById('moon-factor').textContent = `${moonPhaseName} (${((currentMoonInfluence.influence - 1) * 100).toFixed(1)}%)`;
+            document.getElementById('day-factor').textContent = `${dayFactor.name} (${((dayFactor.factor - 1) * 100).toFixed(1)}%)`;
+            document.getElementById('fatigue-factor').textContent = `${fatigueFactor.name} (${((1 - fatigueFactor.factor) * 100).toFixed(1)}%)`;
+            
+            // Обновляем отображение информации о поле
+            const genderText = currentGender === 'men' ? 'Мужчины (+5%)' : 'Женщины (-5%)';
+            document.getElementById('gender-factor').textContent = genderText;
+            
+            // Применяем классы для визуального отображения влияния факторов
+            applyFactorClasses();
             
             const champ = championships[currentChampionship];
             const isCyber = champ.periodLength <= 5;
@@ -1043,8 +1162,8 @@
                 genderFactor = 0.95; // Женщины -5%
             }
             
-            // Корректируем темп игры на основе пола и влияния Луны
-            const adjustedGamePace = (parseFloat(gamePace) * genderFactor * currentMoonInfluence.influence).toFixed(2);
+            // Корректируем темп игры на основе пола, фазы луны, дня недели и усталости
+            const adjustedGamePace = (parseFloat(gamePace) * genderFactor * currentMoonInfluence.influence * dayFactor.factor * fatigueFactor.factor).toFixed(2);
             
             // ПРОГНОЗ ОБЩЕГО КОЛИЧЕСТВА ОЧКОВ - ИСПРАВЛЕННЫЙ
             let totalProjected;
@@ -1125,6 +1244,32 @@
             
             // Обновляем отображение темпа игры
             document.getElementById('pace-display').textContent = adjustedGamePace;
+        }
+        
+        // Функция для применения классов к факторам влияния
+        function applyFactorClasses() {
+            // Луна
+            const moonEl = document.getElementById('moon-factor');
+            moonEl.className = 'factor-value ' + 
+                (currentMoonInfluence.influence > 1 ? 'factor-positive' : 
+                 currentMoonInfluence.influence < 1 ? 'factor-negative' : 'factor-neutral');
+            
+            // День недели
+            const dayOfWeek = new Date().getDay();
+            const dayFactor = dayFactors[dayOfWeek];
+            const dayEl = document.getElementById('day-factor');
+            dayEl.className = 'factor-value ' + 
+                (dayFactor.factor > 1 ? 'factor-positive' : 
+                 dayFactor.factor < 1 ? 'factor-negative' : 'factor-neutral');
+            
+            // Усталость
+            const hours = new Date().getHours();
+            const timeInterval = getTimeInterval(hours);
+            const fatigueFactor = fatigueFactors[timeInterval];
+            const fatigueEl = document.getElementById('fatigue-factor');
+            fatigueEl.className = 'factor-value ' + 
+                (fatigueFactor.factor > 0.98 ? 'factor-positive' : 
+                 fatigueFactor.factor < 0.95 ? 'factor-negative' : 'factor-neutral');
         }
         
         // Автоматический расчет при изменении данных
