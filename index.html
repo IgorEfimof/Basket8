@@ -797,11 +797,12 @@
             6: { name: "Суббота", factor: 1.1, description: "Выходной - высокая активность" }
         };
 
-        // Коэффициенты усталости по времени суток (обновленные)
+        // ОБНОВЛЕННЫЕ коэффициенты усталости по времени суток (на основе статистики)
         const fatigueFactors = {
             'morning': { name: "Утро (6:00-12:00)", factor: 1.05, description: "Свежие команды - высокая эффективность" },
             'afternoon': { name: "День (12:00-18:00)", factor: 1.0, description: "Стандартная эффективность" },
-            'evening': { name: "Вечер (18:00-24:00)", factor: 0.95, description: "Средняя усталость - снижение эффективности" },
+            'early_evening': { name: "Ранний вечер (18:00-21:00)", factor: 0.98, description: "Легкая усталость - небольшое снижение" },
+            'late_evening': { name: "Поздний вечер (21:00-24:00)", factor: 0.92, description: "Значительная усталость - заметное снижение" },
             'night': { name: "Ночь (0:00-6:00)", factor: 0.85, description: "Сильная усталость - низкая эффективность" }
         };
 
@@ -819,11 +820,12 @@
         let activeInput = null;
         const keyboard = document.getElementById('custom-keyboard');
         
-        // Функция для определения временного интервала
+        // Функция для определения временного интервала (ОБНОВЛЕННАЯ)
         function getTimeInterval(hours) {
             if (hours >= 6 && hours < 12) return 'morning';
             if (hours >= 12 && hours < 18) return 'afternoon';
-            if (hours >= 18 && hours < 24) return 'evening';
+            if (hours >= 18 && hours < 21) return 'early_evening';
+            if (hours >= 21 && hours < 24) return 'late_evening';
             return 'night';
         }
         
