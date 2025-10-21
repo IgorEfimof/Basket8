@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon203.png">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BSK8">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Анализатор ставок TT PRO v5.1</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -161,6 +158,11 @@
             transform: scale(1.01);
         }
         
+        .upload-area.upload-success {
+            border-color: var(--positive-color);
+            background-color: rgba(39, 174, 96, 0.1);
+        }
+        
         .upload-icon {
             font-size: 35px;
             color: var(--primary-color);
@@ -213,12 +215,14 @@
             padding: 12px;
             background: var(--stats-bg);
             border-radius: 8px;
+            border-left: 3px solid var(--neutral-color);
         }
         
         .ocr-title {
             font-size: 1rem;
             margin-bottom: 10px;
             color: var(--primary-color);
+            font-weight: bold;
         }
         
         .ocr-item {
@@ -233,10 +237,12 @@
         .ocr-label {
             font-weight: bold;
             color: var(--primary-color);
+            min-width: 100px;
         }
         
         .ocr-value {
             font-weight: bold;
+            color: var(--neutral-color);
         }
         
         .analysis-result {
@@ -531,7 +537,6 @@
             background: #c0392b;
         }
         
-        /* Скрываем скроллбар для вкладок */
         .tabs::-webkit-scrollbar {
             display: none;
         }
@@ -550,7 +555,6 @@
             font-size: 0.9rem;
         }
         
-        /* Кастомная цифровая клавиатура */
         .numeric-keyboard {
             position: fixed;
             bottom: 0;
@@ -609,7 +613,6 @@
             background: var(--secondary-color);
         }
         
-        /* Стили для кибербаскетбола */
         .cyber-factors {
             margin-top: 15px;
             padding: 12px;
@@ -641,7 +644,6 @@
             color: var(--neutral-color);
         }
         
-        /* Медиа-запросы для iPhone */
         @media (max-width: 768px) {
             #screenshot-preview {
                 max-height: 60vh;
@@ -735,12 +737,12 @@
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Период</label>
+                        <label class="input-label">Период (четверть)</label>
                         <input type="text" class="input-field" id="manual-period" placeholder="1-4" inputmode="numeric" readonly>
                     </div>
                     
                     <div class="input-group">
-                        <label class="input-label">Время (мин:сек)</label>
+                        <label class="input-label">Время прошло в четверти (мин:сек)</label>
                         <div style="display: flex; gap: 10px;">
                             <input type="text" class="input-field" id="manual-minutes" placeholder="01" inputmode="numeric" readonly>
                             <span style="display: flex; align-items: center;">:</span>
@@ -797,7 +799,7 @@
                         <span class="ocr-value" id="ocr-period">--</span>
                     </div>
                     <div class="ocr-item">
-                        <span class="ocr-label">Время:</span>
+                        <span class="ocr-label">Время прошло:</span>
                         <span class="ocr-value" id="ocr-time">--</span>
                     </div>
                     <div class="ocr-item">
@@ -882,7 +884,7 @@
                     <ul style="margin-left: 20px; margin-top: 10px;">
                         <li><strong>Счет:</strong> 100:92 (Команда1:Команда2)</li>
                         <li><strong>Период:</strong> 1-4 (текущая четверть)</li>
-                        <li><strong>Время:</strong> 05:30 (оставшееся время в четверти)</li>
+                        <li><strong>Время:</strong> 05:30 (прошедшее время в четверти)</li>
                         <li><strong>Тотал:</strong> 215.5 (значение тотала)</li>
                         <li><strong>Тип тотала:</strong> ТБ (тотал больше) или ТМ (тотал меньше)</li>
                     </ul>
@@ -950,6 +952,7 @@
             let isProcessing = false;
             let processingTimeout = null;
             let activeInput = null;
+            let tesseractWorker = null;
             
             // Применяем сохраненную тему
             let isDarkTheme = localStorage.getItem('darkTheme') === 'true';
@@ -974,6 +977,11 @@
                 if (processingTimeout) {
                     clearTimeout(processingTimeout);
                     processingTimeout = null;
+                }
+                
+                if (tesseractWorker) {
+                    tesseractWorker.terminate();
+                    tesseractWorker = null;
                 }
                 
                 showStatus('Обработка остановлена', 'error');
@@ -1037,7 +1045,7 @@
                 }
             }
             
-            // УНИВЕРСАЛЬНАЯ функция парсинга данных из скриншота
+            // Функция парсинга данных из распознанного текста
             function parseOCRText(text) {
                 let minutes = null;
                 let seconds = null;
@@ -1047,12 +1055,21 @@
                 let score2 = null;
                 let period = null;
 
-                // Парсим время из формата "n-я четверть, MM:SS"
-                const timeRegex = /четверть,\s*(\d{1,2}):(\d{2})/;
+                console.log("Распознанный текст:", text);
+
+                // Парсим период из формата "n-я четверть"
+                const periodRegex = /(\d+)-я четверть/;
+                const periodMatch = text.match(periodRegex);
+                if (periodMatch) {
+                    period = periodMatch[1];
+                }
+
+                // Парсим время из формата "MM:SS" после четверти
+                const timeRegex = /(\d+)-я четверть,\s*(\d{1,2}):(\d{2})/;
                 const timeMatch = text.match(timeRegex);
                 if (timeMatch) {
-                    minutes = timeMatch[1].padStart(2, '0');
-                    seconds = timeMatch[2];
+                    minutes = timeMatch[2].padStart(2, '0');
+                    seconds = timeMatch[3];
                 }
 
                 // Парсим тотал из формата "ТМ (XXX.X)" или "ТБ (XXX.X)"
@@ -1064,29 +1081,21 @@
                     totalType = text.includes('ТМ') ? 'under' : 'over';
                 }
 
-                // Парсим счет команд - ищем отдельные числа после названий команд
+                // Парсим счет команд - ищем последние крупные числа
                 const lines = text.split('\n');
                 let scores = [];
                 
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    
-                    // Ищем строки, состоящие только из цифр (отдельные числа счета)
-                    if (/^\d+$/.test(line)) {
-                        scores.push(parseInt(line));
-                    }
-                    
-                    // Парсим период из формата "n-я четверть"
-                    const periodMatch = line.match(/(\d+)-я четверть/);
-                    if (periodMatch) {
-                        period = periodMatch[1];
-                    }
+                // Ищем все числа в тексте
+                const allNumbers = text.match(/\d+/g);
+                if (allNumbers) {
+                    scores = allNumbers.map(Number);
                 }
                 
-                // Берем первые два найденных числа как счет команд
-                if (scores.length >= 2) {
-                    score1 = scores[0];
-                    score2 = scores[1];
+                // Берем последние два крупных числа как счет (обычно это общий счет команд)
+                const largeNumbers = scores.filter(num => num >= 5); // Фильтруем мелкие числа (номера периодов и т.д.)
+                if (largeNumbers.length >= 2) {
+                    score1 = largeNumbers[largeNumbers.length - 2];
+                    score2 = largeNumbers[largeNumbers.length - 1];
                 }
 
                 return { 
@@ -1097,20 +1106,6 @@
                     score1: score1,
                     score2: score2,
                     period: period
-                };
-            }
-            
-            // Генерация демо-данных на основе реального скриншота
-            function generateDemoData() {
-                // Данные для нового скриншота
-                return {
-                    score1: 7,      // Оклахома-Сити Тандер
-                    score2: 2,      // Бостон Септикс  
-                    period: 1,      // 1-я четверть
-                    minutes: '01',  // Оставшееся время
-                    seconds: '34', 
-                    total: '117.5', // Тотал из TM (117.5)
-                    totalType: 'under' // TM = тотал меньше
                 };
             }
             
@@ -1240,7 +1235,7 @@
                 }
             });
             
-            // Функция обработки изображения
+            // Функция обработки изображения с реальным OCR
             function processImage(file) {
                 // Останавливаем предыдущую обработку
                 stopProcessing();
@@ -1257,6 +1252,10 @@
                     previewImg.src = e.target.result;
                     previewImg.style.display = 'block';
                     
+                    // Автоматически выбираем кибербаскетбол при загрузке скриншота
+                    leagueSelect.value = '5_4_cyber';
+                    updateCyberFactors();
+                    
                     // Показываем индикаторы загрузки
                     document.getElementById('ocr-score').innerHTML = '<span class="loading"></span>';
                     document.getElementById('ocr-period').innerHTML = '<span class="loading"></span>';
@@ -1264,136 +1263,124 @@
                     document.getElementById('ocr-total').innerHTML = '<span class="loading"></span>';
                     document.getElementById('ocr-total-type').innerHTML = '<span class="loading"></span>';
                     
-                    showStatus('Начинаем анализ изображения...', 'success');
+                    showStatus('Начинаем распознавание текста...', 'success');
                     updateProgress(10);
                     cancelProcess.style.display = 'block';
                     
                     // Устанавливаем флаг обработки
                     isProcessing = true;
                     
-                    // Таймаут для обработки (15 секунд)
+                    // Таймаут для обработки (30 секунд)
                     processingTimeout = setTimeout(() => {
                         if (isProcessing) {
-                            showStatus('Таймаут обработки. Попробуйте другой скриншот или введите данные вручную.', 'error');
+                            showStatus('Таймаут распознавания. Попробуйте другой скриншот или введите данные вручную.', 'error');
                             stopProcessing();
                         }
-                    }, 15000);
+                    }, 30000);
                     
-                    // Имитация обработки изображения с помощью Canvas
-                    simulateImageProcessing(file, e.target.result);
+                    // Запускаем реальное распознавание текста
+                    performOCR(e.target.result);
                 };
                 
                 reader.readAsDataURL(file);
             }
             
-            // Имитация обработки изображения
-            function simulateImageProcessing(file, imageData) {
-                // Создаем canvas для анализа изображения
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const img = new Image();
+            // Реальное распознавание текста с помощью Tesseract.js
+            function performOCR(imageData) {
+                updateProgress(20);
                 
-                img.onload = function() {
-                    // Устанавливаем размеры canvas
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    
-                    // Рисуем изображение на canvas
-                    ctx.drawImage(img, 0, 0, img.width, img.height);
-                    
-                    updateProgress(30);
-                    
-                    // Имитация анализа изображения
-                    setTimeout(() => {
-                        if (!isProcessing) return;
-                        
-                        updateProgress(60);
-                        
-                        // Получаем данные изображения для анализа
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        const data = imageData.data;
-                        
-                        // Простой анализ яркости для определения наличия текста
-                        let lightPixels = 0;
-                        let darkPixels = 0;
-                        
-                        for (let i = 0; i < data.length; i += 4) {
-                            const brightness = (data[i] + data[i+1] + data[i+2]) / 3;
-                            if (brightness > 128) {
-                                lightPixels++;
-                            } else {
-                                darkPixels++;
+                Tesseract.recognize(
+                    imageData,
+                    'rus+eng', // Распознавание русского и английского текста
+                    {
+                        logger: progress => {
+                            if (progress.status === 'recognizing text') {
+                                const percent = Math.min(90, 20 + Math.floor(progress.progress * 70));
+                                updateProgress(percent);
                             }
                         }
+                    }
+                ).then(({ data: { text } }) => {
+                    if (!isProcessing) return;
+                    
+                    updateProgress(95);
+                    
+                    // Парсим распознанный текст
+                    const parsedData = parseOCRText(text);
+                    
+                    // Обновляем интерфейс с распознанными данными
+                    updateOCRResults(parsedData);
+                    
+                    updateProgress(100);
+                    showStatus('Распознавание завершено!', 'success');
+                    uploadArea.classList.add('upload-success');
+                    
+                    setTimeout(() => {
+                        progressBar.style.display = 'none';
+                        cancelProcess.style.display = 'none';
+                        isProcessing = false;
                         
-                        updateProgress(80);
-                        
-                        // Генерация данных для демонстрации
-                        setTimeout(() => {
-                            if (!isProcessing) return;
-                            
-                            // Завершаем обработку
-                            updateProgress(100);
-                            
-                            // Получаем демо-данные
-                            const demoData = generateDemoData();
-                            
-                            // Обновляем интерфейс с демонстрационными данными
-                            updateOCRResults(demoData);
-                            
-                            showStatus('Анализ завершен!', 'success');
-                            
-                            setTimeout(() => {
-                                progressBar.style.display = 'none';
-                                cancelProcess.style.display = 'none';
-                                isProcessing = false;
-                                
-                                // Переключаемся на вкладку результатов
-                                tabs.forEach(t => t.classList.remove('active'));
-                                tabContents.forEach(tc => tc.classList.remove('active'));
-                                document.querySelector('[data-tab="results"]').classList.add('active');
-                                document.getElementById('results-tab').classList.add('active');
-                            }, 500);
-                        }, 1000);
-                    }, 1000);
-                };
-                
-                img.src = imageData;
+                        // Переключаемся на вкладку результатов
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tabContents.forEach(tc => tc.classList.remove('active'));
+                        document.querySelector('[data-tab="results"]').classList.add('active');
+                        document.getElementById('results-tab').classList.add('active');
+                    }, 500);
+                    
+                }).catch(error => {
+                    console.error('OCR Error:', error);
+                    showStatus('Ошибка распознавания. Попробуйте другой скриншот или введите данные вручную.', 'error');
+                    stopProcessing();
+                });
             }
             
             // Обновление результатов OCR
             function updateOCRResults(data) {
-                // Обновляем только если данные были распознаны
-                if (data.score1 !== null) {
+                // Обновляем интерфейс с распознанными данными
+                if (data.score1 !== null && data.score2 !== null) {
                     document.getElementById('ocr-score').textContent = `${data.score1}:${data.score2}`;
                     document.getElementById('manual-score1').value = data.score1;
                     document.getElementById('manual-score2').value = data.score2;
+                } else {
+                    document.getElementById('ocr-score').textContent = 'Не распознано';
                 }
                 
                 if (data.period !== null) {
                     document.getElementById('ocr-period').textContent = `${data.period} период`;
                     document.getElementById('manual-period').value = data.period;
+                } else {
+                    document.getElementById('ocr-period').textContent = 'Не распознано';
                 }
                 
                 if (data.minutes !== null && data.seconds !== null) {
                     document.getElementById('ocr-time').textContent = `${data.minutes}:${data.seconds}`;
                     document.getElementById('manual-minutes').value = data.minutes;
                     document.getElementById('manual-seconds').value = data.seconds;
+                } else {
+                    document.getElementById('ocr-time').textContent = 'Не распознано';
                 }
                 
                 if (data.total !== null) {
                     document.getElementById('ocr-total').textContent = data.total;
                     document.getElementById('manual-total').value = data.total;
+                } else {
+                    document.getElementById('ocr-total').textContent = 'Не распознано';
                 }
                 
                 if (data.totalType !== null) {
                     document.getElementById('ocr-total-type').textContent = data.totalType === 'over' ? 'ТБ' : 'ТМ';
                     document.getElementById('manual-total-type').value = data.totalType;
+                } else {
+                    document.getElementById('ocr-total-type').textContent = 'Не распознано';
                 }
                 
-                // Генерация прогноза
-                if (data.score1 !== null && data.score2 !== null && data.period !== null && data.minutes !== null) {
+                // Генерация прогноза если все данные распознаны
+                if (data.score1 !== null && data.score2 !== null && data.period !== null && data.minutes !== null && data.total !== null) {
                     generatePredictions(data.score1, data.score2, data.period, `${data.minutes}:${data.seconds}`, data.total, data.totalType);
+                } else {
+                    document.getElementById('recommendation-text').textContent = 'Не все данные распознаны. Проверьте и введите вручную при необходимости.';
+                    document.getElementById('confidence-bar').style.width = '0%';
+                    document.getElementById('confidence-value').textContent = '0%';
                 }
             }
             
@@ -1435,11 +1422,13 @@
                 generatePredictions(parseInt(score1), parseInt(score2), parseInt(periodInput), timeInput, totalInput, totalTypeInput);
             }
             
-            // УЛУЧШЕННАЯ функция генерации прогнозов с учетом кибербаскетбола
+            // Функция генерации прогнозов с учетом кибербаскетбола
             function generatePredictions(score1, score2, period, timeElapsed, totalLine, totalType) {
                 // Базовые расчеты
                 const totalPoints = score1 + score2;
                 const [minutesElapsed, secondsElapsed] = timeElapsed.split(':').map(Number);
+                
+                // Время, которое прошло в текущей четверти (в секундах)
                 const totalSecondsElapsed = minutesElapsed * 60 + secondsElapsed;
                 
                 // Определение параметров в зависимости от лиги
@@ -1460,11 +1449,13 @@
                     baseMultiplier = 1.15; // Повышенный множитель для кибербаскетбола
                 }
                 
-                // Расчет оставшегося времени
-                const totalSecondsRemaining = (totalPeriods - period) * secondsInPeriod + (secondsInPeriod - totalSecondsElapsed);
+                // Расчет оставшегося времени (текущая четверть + все оставшиеся четверти)
+                const secondsRemainingInCurrentPeriod = secondsInPeriod - totalSecondsElapsed;
+                const fullPeriodsRemaining = totalPeriods - period;
+                const totalSecondsRemaining = secondsRemainingInCurrentPeriod + (fullPeriodsRemaining * secondsInPeriod);
                 const minutesRemaining = totalSecondsRemaining / 60;
                 
-                // Расчет текущего темпа
+                // Расчет текущего темпа (очков в минуту)
                 const totalSecondsPlayed = (period - 1) * secondsInPeriod + totalSecondsElapsed;
                 const minutesPlayed = totalSecondsPlayed / 60;
                 const pointsPerMinute = minutesPlayed > 0 ? totalPoints / minutesPlayed : 0;
@@ -1590,6 +1581,7 @@
                 progressBar.style.display = 'none';
                 statusMessage.innerHTML = '';
                 cancelProcess.style.display = 'none';
+                uploadArea.classList.remove('upload-success');
                 
                 // Останавливаем обработку если она выполняется
                 stopProcessing();
