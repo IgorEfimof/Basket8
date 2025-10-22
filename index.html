@@ -2344,6 +2344,9 @@
                 const predictedScore1 = Math.round(score1 + (pointsPerMinute * minutesRemaining * team1Share * paceCorrection * baseMultiplier));
                 const predictedScore2 = Math.round(score2 + (pointsPerMinute * minutesRemaining * team2Share * paceCorrection * baseMultiplier));
                 
+                // ОБНОВЛЕНИЕ: Ожидаемый тотал теперь равен сумме очков из прогноза счета
+                const expectedTotal = predictedScore1 + predictedScore2;
+                
                 // Формирование рекомендации
                 let recommendation = "";
                 let aiRecommendationText = "";
@@ -2358,7 +2361,7 @@
                 
                 // Базовая рекомендация
                 if (totalType === 'over') {
-                    if (predictedTotalPoints > totalLine) {
+                    if (expectedTotal > totalLine) {
                         recommendation = `Рекомендуется ставка на ТОТАЛ БОЛЬШЕ ${totalLine}`;
                         confidence += 10;
                     } else {
@@ -2366,7 +2369,7 @@
                         confidence -= 5;
                     }
                 } else if (totalType === 'under') {
-                    if (predictedTotalPoints < totalLine) {
+                    if (expectedTotal < totalLine) {
                         recommendation = `Рекомендуется ставка на ТОТАЛ МЕНЬШЕ ${totalLine}`;
                         confidence += 10;
                     } else {
@@ -2378,7 +2381,7 @@
                 // ИИ рекомендация
                 if (useAI) {
                     if (totalType === 'over') {
-                        if (predictedTotalPoints > totalLine) {
+                        if (expectedTotal > totalLine) {
                             aiRecommendationText = `ИИ рекомендует СТАВКУ на ТОТАЛ БОЛЬШЕ ${totalLine}`;
                             aiConfidence += 10;
                         } else {
@@ -2386,7 +2389,7 @@
                             aiConfidence -= 5;
                         }
                     } else if (totalType === 'under') {
-                        if (predictedTotalPoints < totalLine) {
+                        if (expectedTotal < totalLine) {
                             aiRecommendationText = `ИИ рекомендует СТАВКУ на ТОТАЛ МЕНЬШЕ ${totalLine}`;
                             aiConfidence += 10;
                         } else {
@@ -2403,7 +2406,8 @@
                 aiConfidence = Math.min(95, Math.max(50, aiConfidence));
                 
                 // Обновляем интерфейс с результатами
-                document.getElementById('predicted-total').textContent = Math.round(predictedTotalPoints);
+                // ОБНОВЛЕНИЕ: используем expectedTotal (сумму очков из прогноза счета) вместо predictedTotalPoints
+                document.getElementById('predicted-total').textContent = expectedTotal;
                 document.getElementById('predicted-pace').textContent = pointsPerMinute.toFixed(2);
                 document.getElementById('predicted-score').textContent = `${predictedScore1}:${predictedScore2}`;
                 
@@ -2421,13 +2425,14 @@
                 }
                 
                 // Сохраняем прогноз в историю
+                // ОБНОВЛЕНИЕ: сохраняем expectedTotal вместо predictedTotalPoints
                 const prediction = {
                     score: `${score1}:${score2}`,
                     period: period,
                     time: timeElapsed,
                     totalLine: totalLine,
                     totalType: totalType,
-                    predictedTotal: Math.round(predictedTotalPoints),
+                    predictedTotal: expectedTotal, // Используем expectedTotal
                     recommendation: recommendation,
                     aiRecommendation: useAI ? aiRecommendationText : null,
                     confidence: confidence,
