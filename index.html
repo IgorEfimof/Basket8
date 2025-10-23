@@ -764,6 +764,7 @@
             padding: 10px;
             border-bottom: 1px solid #ddd;
             font-size: 0.9rem;
+            position: relative;
         }
         
         .history-prediction {
@@ -777,6 +778,23 @@
         
         .history-incorrect {
             color: var(--negative-color);
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+            justify-content: flex-end;
+        }
+        
+        .history-delete-btn {
+            background: var(--negative-color);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
         }
         
         .chart-container {
@@ -1404,6 +1422,20 @@
                     this.updateDisplay();
                 }
                 
+                // НОВЫЙ МЕТОД: Удаление прогноза из истории
+                removePrediction(predictionId) {
+                    const index = this.history.findIndex(p => p.id === predictionId);
+                    if (index !== -1) {
+                        this.history.splice(index, 1);
+                        this.saveHistory();
+                        this.calculateAccuracy();
+                        this.calculateDeviationStats();
+                        this.updateDisplay();
+                        return true;
+                    }
+                    return false;
+                }
+                
                 // ОБНОВЛЕННЫЙ МЕТОД ДОБАВЛЕНИЯ ОБРАТНОЙ СВЯЗИ
                 addFeedback(predictionId, isCorrect, actualTotal = null, actualScore = null) {
                     const prediction = this.history.find(p => p.id === predictionId);
@@ -1603,17 +1635,40 @@
                             actualTotalText = ` | Реально: ${prediction.actualTotal}`;
                         }
                         
+                        // Определяем статус прогноза
+                        let statusText = '';
+                        if (prediction.feedback === null && prediction.actualTotal === null) {
+                            statusText = ' (не завершено)';
+                        }
+                        
                         return `
                             <div class="history-item">
                                 <div class="history-prediction">
                                     <span>${date}</span>
                                     <span class="${prediction.feedback ? 'history-correct' : prediction.feedback === false ? 'history-incorrect' : ''}">
-                                        ${predictionText}${deviationText}${actualTotalText} ${feedbackIcon}
+                                        ${predictionText}${deviationText}${actualTotalText}${statusText} ${feedbackIcon}
                                     </span>
+                                </div>
+                                <div class="history-actions">
+                                    <button class="history-delete-btn" data-id="${prediction.id}">
+                                        <i class="fas fa-trash"></i> Удалить
+                                    </button>
                                 </div>
                             </div>
                         `;
                     }).join('');
+                    
+                    // Добавляем обработчики событий для кнопок удаления
+                    document.querySelectorAll('.history-delete-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const predictionId = parseInt(e.target.closest('.history-delete-btn').getAttribute('data-id'));
+                            if (confirm('Вы уверены, что хотите удалить этот прогноз из истории?')) {
+                                if (this.removePrediction(predictionId)) {
+                                    showStatus('Прогноз удален из истории', 'ai');
+                                }
+                            }
+                        });
+                    });
                     
                     this.updateChart();
                 }
