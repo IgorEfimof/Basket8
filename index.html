@@ -3,10 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon203.png">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BSK8">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Анализатор ставок TT PRO v6.1 AI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1038,6 +1034,14 @@
                                 <span class="factor-value" id="ai-period-factor">+0.0%</span>
                             </div>
                             <div class="factor-item">
+                                <span class="factor-label">ИИ коррекция темпа:</span>
+                                <span class="factor-value" id="ai-pace-factor">+0.0%</span>
+                            </div>
+                            <div class="factor-item">
+                                <span class="factor-label">ИИ коррекция точности:</span>
+                                <span class="factor-value" id="ai-accuracy-factor">+0.0%</span>
+                            </div>
+                            <div class="factor-item">
                                 <span class="factor-label">Общая ИИ коррекция:</span>
                                 <span class="factor-value" id="ai-total-factor">+0.0%</span>
                             </div>
@@ -1128,6 +1132,14 @@
                         <div class="factor-item">
                             <span class="factor-label">ИИ коррекция периода:</span>
                             <span class="factor-value" id="result-ai-period-factor">+0.0%</span>
+                        </div>
+                        <div class="factor-item">
+                            <span class="factor-label">ИИ коррекция темпа:</span>
+                            <span class="factor-value" id="result-ai-pace-factor">+0.0%</span>
+                        </div>
+                        <div class="factor-item">
+                            <span class="factor-label">ИИ коррекция точности:</span>
+                            <span class="factor-value" id="result-ai-accuracy-factor">+0.0%</span>
                         </div>
                         <div class="factor-item">
                             <span class="factor-label">Общая ИИ коррекция:</span>
@@ -1230,7 +1242,7 @@
                         </div>
                         <div class="feedback-stat-card">
                             <div class="feedback-stat-value" id="prediction-accuracy">--</div>
-                            <div class="feedback-stat-label">Точность прогнозов</div>
+                            <div class="ai-stat-label">Точность прогнозов</div>
                         </div>
                     </div>
                     
@@ -1462,53 +1474,84 @@
                     }
                 }
                 
-                getAICorrection(dayOfWeek, timeCategory, period) {
-                    const dayCorrection = this.model.dayWeights[dayOfWeek] * 100; // Преобразуем в проценты
-                    const timeCorrection = this.model.timeWeights[timeCategory] * 100;
-                    const periodCorrection = this.model.periodWeights[period - 1] * 50; // Меньшее влияние периода
-                    const totalCorrection = dayCorrection + timeCorrection + periodCorrection;
+                // УЛУЧШЕННЫЙ МЕТОД ДЛЯ ПОЛУЧЕНИЯ ИИ КОРРЕКЦИИ
+                getAICorrection(dayOfWeek, timeCategory, period, basePrediction, currentPace) {
+                    // Базовые коррекции на основе обучения
+                    const dayCorrection = this.model.dayWeights[dayOfWeek] * 2.5; // Увеличиваем влияние
+                    const timeCorrection = this.model.timeWeights[timeCategory] * 2.5;
+                    const periodCorrection = this.model.periodWeights[period - 1] * 1.5;
+                    
+                    // Дополнительная коррекция на основе текущего темпа игры
+                    let paceCorrection = 0;
+                    if (currentPace > 2.2) paceCorrection = 8; // Высокий темп
+                    else if (currentPace > 1.8) paceCorrection = 4; // Средний темп
+                    else paceCorrection = -5; // Низкий темп
+                    
+                    // Коррекция на основе точности предыдущих прогнозов
+                    const accuracyBonus = Math.min(15, this.accuracy / 6);
+                    
+                    // Общая коррекция с учетом всех факторов
+                    const totalCorrection = dayCorrection + timeCorrection + periodCorrection + paceCorrection + accuracyBonus;
+                    
+                    // Ограничиваем максимальную коррекцию
+                    const maxCorrection = 25;
+                    const finalCorrection = Math.max(-maxCorrection, Math.min(maxCorrection, totalCorrection));
                     
                     return {
                         day: dayCorrection,
                         time: timeCorrection,
                         period: periodCorrection,
-                        total: totalCorrection
+                        pace: paceCorrection,
+                        accuracy: accuracyBonus,
+                        total: finalCorrection
                     };
                 }
                 
                 // УСОВЕРШЕНСТВОВАННЫЙ МЕТОД ОБУЧЕНИЯ
                 trainModel() {
                     const trainingData = this.history.filter(p => p.feedback !== null && p.actualTotal !== null);
-                    if (trainingData.length < 3) return; // Нужно минимум 3 точки данных с реальными результатами
+                    if (trainingData.length < 2) return;
                     
                     this.trainingCount++;
                     
-                    // Усовершенствованный градиентный спуск с учетом величины ошибки
+                    // Адаптивный learning rate
+                    const baseLearningRate = 0.03;
+                    const adaptiveLR = baseLearningRate * (1 + this.trainingCount / 100);
+                    
                     trainingData.forEach(prediction => {
                         if (prediction.factors && prediction.deviation !== null) {
                             const dayOfWeek = prediction.factors.dayOfWeek;
                             const timeCategory = prediction.factors.timeCategory;
-                            const period = prediction.period - 1; // Приводим к 0-based индексу
+                            const period = prediction.period - 1;
                             
-                            // Нормализованная ошибка (от -1 до 1)
-                            const normalizedError = Math.max(-1, Math.min(1, prediction.deviation / 50));
+                            // Улучшенный расчет ошибки с учетом величины отклонения
+                            const normalizedError = Math.max(-1.5, Math.min(1.5, prediction.deviation / 40));
                             
-                            // Learning rate зависит от величины ошибки
-                            const learningRate = 0.02 * Math.abs(normalizedError);
+                            // Learning rate зависит от уверенности в прогнозе
+                            const confidenceFactor = prediction.useAI ? 
+                                (prediction.aiConfidence / 100) : (prediction.confidence / 100);
                             
-                            // Обновляем веса с учетом знака ошибки
-                            this.model.dayWeights[dayOfWeek] -= normalizedError * learningRate;
-                            this.model.timeWeights[timeCategory] -= normalizedError * learningRate;
-                            this.model.periodWeights[period] -= normalizedError * learningRate * 0.5; // Меньшее влияние периода
+                            const effectiveLR = adaptiveLR * (1 + confidenceFactor) * Math.abs(normalizedError);
+                            
+                            // Обновляем веса с улучшенной формулой
+                            this.model.dayWeights[dayOfWeek] -= normalizedError * effectiveLR * 1.2;
+                            this.model.timeWeights[timeCategory] -= normalizedError * effectiveLR * 1.1;
+                            this.model.periodWeights[period] -= normalizedError * effectiveLR * 0.6;
                         }
                     });
                     
-                    // Ограничиваем веса чтобы избежать переобучения
-                    this.model.dayWeights = this.model.dayWeights.map(w => Math.max(-0.5, Math.min(0.5, w)));
-                    this.model.timeWeights = this.model.timeWeights.map(w => Math.max(-0.5, Math.min(0.5, w)));
-                    this.model.periodWeights = this.model.periodWeights.map(w => Math.max(-0.25, Math.min(0.25, w)));
+                    // Регуляризация для предотвращения переобучения
+                    const regularization = 0.01;
+                    this.model.dayWeights = this.model.dayWeights.map(w => 
+                        Math.max(-0.8, Math.min(0.8, w * (1 - regularization)))
+                    );
+                    this.model.timeWeights = this.model.timeWeights.map(w => 
+                        Math.max(-0.8, Math.min(0.8, w * (1 - regularization)))
+                    );
+                    this.model.periodWeights = this.model.periodWeights.map(w => 
+                        Math.max(-0.4, Math.min(0.4, w * (1 - regularization)))
+                    );
                     
-                    // Сохраняем обновленные веса
                     this.saveWeights('dayWeights', this.model.dayWeights);
                     this.saveWeights('timeWeights', this.model.timeWeights);
                     this.saveWeights('periodWeights', this.model.periodWeights);
@@ -1875,25 +1918,16 @@
                     // Общий модификатор
                     const totalFactor = dayFactor + timeFactor;
                     
-                    // Получаем ИИ коррекцию с учетом периода
-                    const aiCorrection = aiSystem.getAICorrection(dayOfWeek, timeCategory, period);
-                    
                     // Обновляем интерфейс
                     document.getElementById('day-factor').textContent = `${dayFactor > 0 ? '+' : ''}${dayFactor}%`;
                     document.getElementById('time-factor').textContent = `${timeFactor > 0 ? '+' : ''}${timeFactor}%`;
                     document.getElementById('total-factor').textContent = `${totalFactor > 0 ? '+' : ''}${totalFactor}%`;
-                    
-                    document.getElementById('ai-day-factor').textContent = `${aiCorrection.day > 0 ? '+' : ''}${aiCorrection.day.toFixed(1)}%`;
-                    document.getElementById('ai-time-factor').textContent = `${aiCorrection.time > 0 ? '+' : ''}${aiCorrection.time.toFixed(1)}%`;
-                    document.getElementById('ai-period-factor').textContent = `${aiCorrection.period > 0 ? '+' : ''}${aiCorrection.period.toFixed(1)}%`;
-                    document.getElementById('ai-total-factor').textContent = `${aiCorrection.total > 0 ? '+' : ''}${aiCorrection.total.toFixed(1)}%`;
                     
                     // Сохраняем факторы для использования в расчетах
                     window.cyberFactors = { 
                         dayFactor, 
                         timeFactor, 
                         totalFactor,
-                        aiCorrection,
                         dayOfWeek,
                         timeCategory,
                         period
@@ -2349,20 +2383,24 @@
                 
                 let predictedTotalPoints = basePredictedTotalPoints;
                 let aiConfidence = 0;
-                let aiCorrection = { day: 0, time: 0, period: 0, total: 0 };
+                let aiCorrection = { day: 0, time: 0, period: 0, pace: 0, accuracy: 0, total: 0 };
                 
                 // Учет факторов кибербаскетбола и ИИ коррекции
                 if (leagueType === '5_4_cyber' && window.cyberFactors) {
-                    const { dayFactor, timeFactor, totalFactor, aiCorrection: aiCorr } = window.cyberFactors;
+                    const { dayFactor, timeFactor, totalFactor, dayOfWeek, timeCategory, period: cyberPeriod } = window.cyberFactors;
                     
                     // Применяем стандартные факторы
                     predictedTotalPoints = basePredictedTotalPoints * (1 + totalFactor / 100);
                     
                     // Применяем ИИ коррекцию если запрошено
                     if (useAI) {
-                        aiCorrection = aiCorr;
+                        aiCorrection = aiSystem.getAICorrection(dayOfWeek, timeCategory, cyberPeriod, basePredictedTotalPoints, pointsPerMinute);
                         predictedTotalPoints = basePredictedTotalPoints * (1 + (totalFactor + aiCorrection.total) / 100);
-                        aiConfidence = Math.min(95, 70 + Math.abs(aiCorrection.total) * 2);
+                        aiConfidence = Math.min(95, 65 + 
+                            Math.abs(aiCorrection.total) * 1.5 + 
+                            (aiSystem.accuracy / 2) +
+                            (period * 3)
+                        );
                     }
                     
                     // Показываем факторы в результатах
@@ -2382,6 +2420,10 @@
                             `${aiCorrection.time > 0 ? '+' : ''}${aiCorrection.time.toFixed(1)}%`;
                         document.getElementById('result-ai-period-factor').textContent = 
                             `${aiCorrection.period > 0 ? '+' : ''}${aiCorrection.period.toFixed(1)}%`;
+                        document.getElementById('result-ai-pace-factor').textContent = 
+                            `${aiCorrection.pace > 0 ? '+' : ''}${aiCorrection.pace}%`;
+                        document.getElementById('result-ai-accuracy-factor').textContent = 
+                            `${aiCorrection.accuracy > 0 ? '+' : ''}${aiCorrection.accuracy.toFixed(1)}%`;
                         document.getElementById('result-ai-total-factor').textContent = 
                             `${aiCorrection.total > 0 ? '+' : ''}${aiCorrection.total.toFixed(1)}%`;
                     } else {
@@ -2437,24 +2479,50 @@
                 if (useAI) {
                     if (totalType === 'over') {
                         if (expectedTotal > totalLine) {
-                            aiRecommendationText = `ИИ рекомендует СТАВКУ на ТОТАЛ БОЛЬШЕ ${totalLine}`;
-                            aiConfidence += 10;
+                            const advantage = ((expectedTotal - totalLine) / totalLine * 100).toFixed(1);
+                            aiRecommendationText = `ИИ СИЛЬНО РЕКОМЕНДУЕТ ТБ ${totalLine} (преимущество: +${advantage}%)`;
+                            aiConfidence += 15;
                         } else {
-                            aiRecommendationText = `ИИ НЕ рекомендует ставку на ТОТАЛ БОЛЬШЕ ${totalLine}`;
-                            aiConfidence -= 5;
+                            const disadvantage = ((totalLine - expectedTotal) / totalLine * 100).toFixed(1);
+                            aiRecommendationText = `ИИ НЕ РЕКОМЕНДУЕТ ТБ ${totalLine} (риск: ${disadvantage}%)`;
+                            aiConfidence -= 10;
                         }
                     } else if (totalType === 'under') {
                         if (expectedTotal < totalLine) {
-                            aiRecommendationText = `ИИ рекомендует СТАВКУ на ТОТАЛ МЕНЬШЕ ${totalLine}`;
-                            aiConfidence += 10;
+                            const advantage = ((totalLine - expectedTotal) / totalLine * 100).toFixed(1);
+                            aiRecommendationText = `ИИ СИЛЬНО РЕКОМЕНДУЕТ ТМ ${totalLine} (преимущество: +${advantage}%)`;
+                            aiConfidence += 15;
                         } else {
-                            aiRecommendationText = `ИИ НЕ рекомендует ставку на ТОТАЛ МЕНЬШЕ ${totalLine}`;
-                            aiConfidence -= 5;
+                            const disadvantage = ((expectedTotal - totalLine) / totalLine * 100).toFixed(1);
+                            aiRecommendationText = `ИИ НЕ РЕКОМЕНДУЕТ ТМ ${totalLine} (риск: ${disadvantage}%)`;
+                            aiConfidence -= 10;
                         }
                     }
                     
-                    // Увеличиваем уверенность для ИИ с учетом факторов
-                    aiConfidence += Math.abs(aiCorrection.total) * 2;
+                    // Добавляем объяснение от ИИ
+                    let aiExplanation = "На основе обучения ИИ: ";
+                    const factors = [];
+                    
+                    if (Math.abs(aiCorrection.day) > 3) factors.push(`день недели (${aiCorrection.day > 0 ? '+' : ''}${aiCorrection.day.toFixed(1)}%)`);
+                    if (Math.abs(aiCorrection.time) > 3) factors.push(`время суток (${aiCorrection.time > 0 ? '+' : ''}${aiCorrection.time.toFixed(1)}%)`);
+                    if (Math.abs(aiCorrection.pace) > 3) factors.push(`темп игры (${aiCorrection.pace > 0 ? '+' : ''}${aiCorrection.pace}%)`);
+                    if (Math.abs(aiCorrection.accuracy) > 2) factors.push(`точность модели (${aiCorrection.accuracy > 0 ? '+' : ''}${aiCorrection.accuracy.toFixed(1)}%)`);
+                    
+                    if (factors.length > 0) {
+                        aiExplanation += factors.join(", ");
+                    } else {
+                        aiExplanation += "незначительные корректировки";
+                    }
+                    
+                    aiRecommendationText += `\n${aiExplanation}`;
+                    
+                    // Сравнение с обычным прогнозом
+                    const standardTotal = basePredictedTotalPoints * (1 + window.cyberFactors.totalFactor / 100);
+                    const difference = expectedTotal - standardTotal;
+                    
+                    if (Math.abs(difference) > 2) {
+                        aiRecommendationText += `\n\nИИ коррекция: ${difference > 0 ? '+' : ''}${difference.toFixed(1)} очков от стандартного прогноза`;
+                    }
                 }
                 
                 confidence = Math.min(95, Math.max(50, confidence));
@@ -2462,7 +2530,7 @@
                 
                 // Обновляем интерфейс с результатами
                 // ОБНОВЛЕНИЕ: используем expectedTotal (сумму очков из прогноза счета) вместо predictedTotalPoints
-                document.getElementById('predicted-total').textContent = expectedTotal;
+                document.getElementById('predicted-total').textContent = expectedTotal.toFixed(1);
                 document.getElementById('predicted-pace').textContent = pointsPerMinute.toFixed(2);
                 document.getElementById('predicted-score').textContent = `${predictedScore1}:${predictedScore2}`;
                 
