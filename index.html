@@ -1884,13 +1884,14 @@
                 
                 // УЛУЧШЕННОЕ обучение с градиентным спуском
                 enhancedTrain() {
+                    // ИСПРАВЛЕНО: используем только данные с реальными результатами
                     const trainingData = this.history.filter(p => 
-                        p.feedback !== null && p.actualTotal !== null && p.features
+                        p.actualTotal !== null && p.features && !isNaN(p.actualTotal)
                     );
                     
                     if (trainingData.length < 3) {
-                        console.log("Недостаточно данных для обучения");
-                        return;
+                        console.log("Недостаточно РЕАЛЬНЫХ данных для обучения");
+                        return 0;
                     }
                     
                     this.calculateNormalizationParams(trainingData);
@@ -1902,7 +1903,7 @@
                     trainingData.forEach(data => {
                         const normalizedFeatures = this.normalizeFeatures(data.features);
                         const prediction = this.enhancedPredict(data.features);
-                        const error = prediction - data.actualTotal;
+                        const error = prediction - (data.actualTotal / 300); // Нормализация реального тотала
                         
                         // Градиентный спуск
                         for (let i = 0; i < this.model.weights.length; i++) {
@@ -1929,12 +1930,13 @@
                 
                 // ML обучение с TensorFlow.js
                 async mlTrain(epochs = 100, updateCallback = null) {
+                    // ИСПРАВЛЕНО: используем только данные с реальными результатами
                     const trainingData = this.history.filter(p => 
-                        p.feedback !== null && p.actualTotal !== null && p.features
+                        p.actualTotal !== null && p.features && !isNaN(p.actualTotal)
                     );
                     
                     if (trainingData.length < 5) {
-                        console.log("Недостаточно данных для ML обучения");
+                        console.log("Недостаточно РЕАЛЬНЫХ данных для ML обучения");
                         return { finalLoss: 1, history: null };
                     }
                     
@@ -1942,7 +1944,7 @@
                     
                     // Подготовка данных
                     const features = trainingData.map(d => this.normalizeFeatures(d.features));
-                    const labels = trainingData.map(d => [d.actualTotal / 300]); // Нормализация тотала
+                    const labels = trainingData.map(d => [d.actualTotal / 300]); // Нормализация реального тотала
                     
                     const xs = tf.tensor2d(features);
                     const ys = tf.tensor2d(labels);
@@ -2006,6 +2008,7 @@
                     return false;
                 }
                 
+                // ИСПРАВЛЕННЫЙ метод добавления обратной связи
                 addFeedback(predictionId, isCorrect, actualTotal = null, actualScore = null) {
                     console.log("Добавление обратной связи для прогноза:", predictionId);
                     
@@ -2021,6 +2024,7 @@
                     prediction.feedback = isCorrect;
                     prediction.feedbackDate = new Date().toISOString();
                     
+                    // ИСПРАВЛЕНО: Сохраняем реальные данные
                     if (actualTotal !== null) {
                         prediction.actualTotal = parseFloat(actualTotal);
                         prediction.actualScore = actualScore;
@@ -2039,9 +2043,12 @@
                     // Сохраняем историю
                     this.saveHistory();
                     
-                    // Обучаем модель
-                    this.enhancedTrain();
-                    this.calculateDeviationStats();
+                    // Обучаем модель только если есть реальные данные
+                    if (actualTotal !== null) {
+                        this.enhancedTrain();
+                        this.calculateDeviationStats();
+                    }
+                    
                     this.updateDisplay();
                     
                     console.log("Обратная связь успешно добавлена и модель обучена");
@@ -2199,6 +2206,11 @@
                             actualTotalText = ` | Реально: ${prediction.actualTotal}`;
                         }
                         
+                        let actualScoreText = '';
+                        if (prediction.actualScore !== null) {
+                            actualScoreText = ` | Счет: ${prediction.actualScore}`;
+                        }
+                        
                         let modelType = '';
                         if (prediction.useML) modelType = ' [ML]';
                         else if (prediction.useAI) modelType = ' [AI]';
@@ -2213,7 +2225,7 @@
                                 <div class="history-prediction">
                                     <span>${date}</span>
                                     <span class="${prediction.feedback ? 'history-correct' : prediction.feedback === false ? 'history-incorrect' : ''}">
-                                        ${predictionText}${deviationText}${actualTotalText}${modelType}${statusText} ${feedbackIcon}
+                                        ${predictionText}${deviationText}${actualTotalText}${actualScoreText}${modelType}${statusText} ${feedbackIcon}
                                     </span>
                                 </div>
                                 <div class="history-actions">
@@ -3334,6 +3346,7 @@
                 });
             });
             
+            // ИСПРАВЛЕННАЯ функция обработки обратной связи
             function processFeedback(isCorrect, saveOnly = false) {
                 if (!window.lastPredictionId) {
                     showStatus('Сначала сделайте прогноз', 'error');
@@ -3351,18 +3364,19 @@
                 
                 const actualScore = actualScore1 && actualScore2 ? `${actualScore1}:${actualScore2}` : null;
                 
-                // ДОБАВЛЕНО: Проверка и преобразование данных
+                // Проверка и преобразование данных
                 const actualTotalNum = parseFloat(actualTotal);
                 if (isNaN(actualTotalNum)) {
                     showStatus('Введите корректное числовое значение для тотала', 'error');
                     return;
                 }
                 
+                // ИСПРАВЛЕНО: Всегда передаем реальные данные
+                enhancedAISystem.addFeedback(window.lastPredictionId, isCorrect, actualTotalNum, actualScore);
+                
                 if (saveOnly) {
-                    enhancedAISystem.addFeedback(window.lastPredictionId, null, actualTotalNum, actualScore);
                     showStatus('Результат сохранен для обучения ИИ', 'ai');
                 } else {
-                    enhancedAISystem.addFeedback(window.lastPredictionId, isCorrect, actualTotalNum, actualScore);
                     showStatus(`Спасибо за обратную связь! Ставка ${isCorrect ? 'прошла' : 'не прошла'}. ИИ обучается...`, 'ai');
                 }
                 
@@ -3371,7 +3385,7 @@
                 actualScore2Input.value = '';
                 feedbackStats.style.display = 'none';
                 
-                // ДОБАВЛЕНО: Принудительное обновление интерфейса
+                // Принудительное обновление интерфейса
                 setTimeout(() => {
                     enhancedAISystem.updateDisplay();
                     enhancedAISystem.updateStatsDisplay();
@@ -3392,7 +3406,11 @@
             
             trainAIButton.addEventListener('click', () => {
                 const loss = enhancedAISystem.enhancedTrain();
-                showStatus(`ИИ модель обучена. Потери: ${loss.toFixed(4)}`, 'ai');
+                if (loss === 0) {
+                    showStatus('Недостаточно данных с реальными результатами для обучения', 'error');
+                } else {
+                    showStatus(`ИИ модель обучена. Потери: ${loss.toFixed(4)}`, 'ai');
+                }
             });
             
             trainMLButton.addEventListener('click', async () => {
@@ -3412,7 +3430,12 @@
                         updateTrainingProgress(progress, `Эпоха ${epoch + 1}/50 - Потери: ${logs.loss.toFixed(4)}`);
                     });
                     
-                    showTrainingStatus(`ML модель обучена! Финальные потери: ${result.finalLoss.toFixed(4)}`);
+                    if (result.finalLoss === 1) {
+                        showTrainingStatus('Недостаточно данных с реальными результатами для обучения ML');
+                    } else {
+                        showTrainingStatus(`ML модель обучена! Финальные потери: ${result.finalLoss.toFixed(4)}`);
+                    }
+                    
                     enhancedAISystem.updateStatsDisplay();
                     
                 } catch (error) {
@@ -3441,7 +3464,12 @@
                         updateTrainingProgress(progress, `Эпоха ${epoch + 1}/100 - Потери: ${logs.loss.toFixed(4)}`);
                     });
                     
-                    showTrainingStatus(`Продвинутое обучение завершено! Финальные потери: ${result.finalLoss.toFixed(4)}`);
+                    if (result.finalLoss === 1) {
+                        showTrainingStatus('Недостаточно данных с реальными результатами для продвинутого обучения');
+                    } else {
+                        showTrainingStatus(`Продвинутое обучение завершено! Финальные потери: ${result.finalLoss.toFixed(4)}`);
+                    }
+                    
                     enhancedAISystem.updateStatsDisplay();
                     
                 } catch (error) {
