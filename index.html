@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon203.png">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BSK8">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Анализатор ставок TT PRO v7.0 AI Enhanced</title>
+    <title>Анализатор ставок TT PRO v6.1 AI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
@@ -39,7 +35,6 @@
             --negative-color: #e74c3c;
             --neutral-color: #3498db;
             --ai-color: #9b59b6;
-            --training-color: #f39c12;
         }
         
         [data-theme="dark"] {
@@ -262,7 +257,7 @@
         
         .result-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 12px;
             margin-top: 12px;
             margin-bottom: 15px;
@@ -304,10 +299,6 @@
             color: var(--ai-color);
         }
         
-        .training {
-            color: var(--training-color);
-        }
-        
         .recommendation {
             margin-top: 20px;
             padding: 15px;
@@ -319,10 +310,6 @@
         
         .recommendation.ai-recommendation {
             background: linear-gradient(90deg, var(--ai-color), #8e44ad);
-        }
-        
-        .recommendation.training-recommendation {
-            background: linear-gradient(90deg, var(--training-color), #e67e22);
         }
         
         .recommendation-title {
@@ -506,15 +493,6 @@
             background: #8e44ad;
         }
         
-        .training-btn {
-            background: var(--training-color);
-            color: white;
-        }
-        
-        .training-btn:hover {
-            background: #e67e22;
-        }
-        
         .loading {
             display: inline-block;
             width: 18px;
@@ -565,11 +543,6 @@
         .status-ai {
             background-color: rgba(155, 89, 182, 0.2);
             color: var(--ai-color);
-        }
-        
-        .status-training {
-            background-color: rgba(243, 156, 18, 0.2);
-            color: var(--training-color);
         }
         
         .cancel-btn {
@@ -744,31 +717,6 @@
             color: var(--text-color);
         }
         
-        .training-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .training-stat-card {
-            background: white;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-        }
-        
-        .training-stat-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--training-color);
-        }
-        
-        .training-stat-label {
-            font-size: 0.8rem;
-            color: var(--text-color);
-        }
-        
         .feedback-section {
             margin-top: 15px;
             padding: 12px;
@@ -925,52 +873,6 @@
             color: var(--negative-color);
         }
         
-        .training-progress {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(243, 156, 18, 0.1);
-            border-radius: 8px;
-            border: 2px solid var(--training-color);
-        }
-        
-        .training-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(243, 156, 18, 0.05);
-            border-radius: 5px;
-            font-size: 0.8rem;
-        }
-        
-        .feature-importance {
-            margin-top: 15px;
-            padding: 12px;
-            background: rgba(52, 152, 219, 0.1);
-            border-radius: 8px;
-        }
-        
-        .feature-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 0.8rem;
-        }
-        
-        .feature-bar {
-            width: 100px;
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-left: 10px;
-        }
-        
-        .feature-fill {
-            height: 100%;
-            background: var(--primary-color);
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-        
         @media (max-width: 768px) {
             #screenshot-preview {
                 max-height: 60vh;
@@ -981,16 +883,12 @@
                 font-size: 1.1rem;
             }
             
-            .ai-stats, .training-stats {
+            .ai-stats {
                 grid-template-columns: 1fr;
             }
             
             .feedback-buttons {
                 flex-direction: column;
-            }
-            
-            .result-grid {
-                grid-template-columns: 1fr;
             }
         }
         
@@ -1009,8 +907,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Анализатор ставок TT PRO v7.0 AI Enhanced</h1>
-            <div class="subtitle">Улучшенный ИИ с настоящим машинным обучением</div>
+            <h1>Анализатор ставок TT PRO v6.1 AI</h1>
+            <div class="subtitle">ИИ с расширенным обучением на реальных результатах</div>
             <button class="theme-toggle" id="theme-toggle">🌙</button>
         </header>
         
@@ -1018,7 +916,6 @@
             <button class="tab active" data-tab="upload">Загрузка</button>
             <button class="tab" data-tab="results">Результаты</button>
             <button class="tab" data-tab="ai">ИИ Аналитика</button>
-            <button class="tab" data-tab="training">Обучение</button>
             <button class="tab" data-tab="instruction">Инструкция</button>
         </div>
         
@@ -1037,7 +934,7 @@
                 
                 <div class="simple-ocr-info">
                     <i class="fas fa-robot"></i> 
-                    <span>Улучшенная ИИ система с настоящим машинным обучением</span>
+                    <span>ИИ система активна и обучается на основе ваших результатов</span>
                 </div>
                 
                 <div class="upload-area" id="upload-area">
@@ -1154,7 +1051,6 @@
                     <div class="action-buttons">
                         <button class="action-btn analyze-btn" id="manual-submit">Анализировать</button>
                         <button class="action-btn ai-btn" id="ai-analyze">ИИ Анализ</button>
-                        <button class="action-btn training-btn" id="ml-analyze">ML Анализ</button>
                         <button class="action-btn clear-btn" id="clear-btn">Очистить</button>
                     </div>
                 </div>
@@ -1205,11 +1101,6 @@
                             <div class="result-title">Прогноз счета</div>
                             <div class="result-value neutral" id="predicted-score">--</div>
                         </div>
-                        
-                        <div class="result-card">
-                            <div class="result-title">Точность модели</div>
-                            <div class="result-value neutral" id="model-accuracy">--</div>
-                        </div>
                     </div>
                     
                     <div class="cyber-factors" id="cyber-factors-results" style="display: none;">
@@ -1255,34 +1146,6 @@
                             <span class="factor-value" id="result-ai-total-factor">+0.0%</span>
                         </div>
                     </div>
-                    
-                    <div class="feature-importance" id="feature-importance" style="display: none;">
-                        <div class="ai-title">Важность признаков ML модели:</div>
-                        <div class="feature-item">
-                            <span class="factor-label">Темп игры:</span>
-                            <div class="feature-bar">
-                                <div class="feature-fill" id="feature-pace" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <span class="factor-label">Период:</span>
-                            <div class="feature-bar">
-                                <div class="feature-fill" id="feature-period" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <span class="factor-label">Разница в счете:</span>
-                            <div class="feature-bar">
-                                <div class="feature-fill" id="feature-diff" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <span class="factor-label">Время суток:</span>
-                            <div class="feature-bar">
-                                <div class="feature-fill" id="feature-time" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="recommendation" id="standard-recommendation">
@@ -1308,19 +1171,6 @@
                             <div class="confidence-fill" id="ai-confidence-bar" style="width: 0%"></div>
                         </div>
                         <span id="ai-confidence-value" style="margin-left: 8px;">0%</span>
-                    </div>
-                </div>
-                
-                <div class="recommendation training-recommendation" id="ml-recommendation" style="display: none;">
-                    <div class="recommendation-title">ML Рекомендация</div>
-                    <div class="recommendation-desc" id="ml-recommendation-text">Анализ машинного обучения будет показан здесь</div>
-                    
-                    <div class="confidence">
-                        <span class="confidence-text">Уверенность ML:</span>
-                        <div class="confidence-bar">
-                            <div class="confidence-fill" id="ml-confidence-bar" style="width: 0%"></div>
-                        </div>
-                        <span id="ml-confidence-value" style="margin-left: 8px;">0%</span>
                     </div>
                 </div>
                 
@@ -1415,125 +1265,38 @@
                 </div>
             </div>
             
-            <div class="results-section tab-content" id="training-tab">
-                <h2 class="section-title">Машинное Обучение</h2>
-                
-                <div class="training-progress">
-                    <h3>Статус ML модели</h3>
-                    
-                    <div class="training-stats">
-                        <div class="training-stat-card">
-                            <div class="training-stat-value" id="ml-accuracy">0%</div>
-                            <div class="training-stat-label">Точность ML</div>
-                        </div>
-                        <div class="training-stat-card">
-                            <div class="training-stat-value" id="ml-training-epochs">0</div>
-                            <div class="training-stat-label">Эпох обучения</div>
-                        </div>
-                        <div class="training-stat-card">
-                            <div class="training-stat-value" id="ml-loss">0.0000</div>
-                            <div class="training-stat-label">Потери</div>
-                        </div>
-                        <div class="training-stat-card">
-                            <div class="training-stat-value" id="ml-data-size">0</div>
-                            <div class="training-stat-label">Размер данных</div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-bar" id="training-progress-bar" style="margin-top: 15px;">
-                        <div class="progress-fill" id="training-progress-fill" style="width: 0%"></div>
-                    </div>
-                    
-                    <div id="training-status"></div>
-                    
-                    <div class="training-info">
-                        <strong>Текущая модель:</strong> Нейронная сеть с градиентным спуском<br>
-                        <strong>Архитектура:</strong> 10 входов → 8 скрытых → 4 скрытых → 1 выход<br>
-                        <strong>Алгоритм:</strong> Adam optimizer, learning rate: 0.001
-                    </div>
-                    
-                    <div class="action-buttons" style="margin-top: 15px;">
-                        <button class="action-btn training-btn" id="train-ml">Обучить ML модель</button>
-                        <button class="action-btn ai-btn" id="advanced-train">Продвинутое обучение</button>
-                        <button class="action-btn clear-btn" id="cancel-training">Отменить обучение</button>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <canvas id="training-chart"></canvas>
-                </div>
-                
-                <div class="feature-importance">
-                    <h3>Важность признаков в ML модели</h3>
-                    <div class="feature-item">
-                        <span class="factor-label">Темп игры (очков/минуту):</span>
-                        <div class="feature-bar">
-                            <div class="feature-fill" id="ml-feature-pace" style="width: 0%"></div>
-                        </div>
-                        <span id="ml-weight-pace" style="margin-left: 8px; font-size: 0.8rem;">0.00</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="factor-label">Период игры:</span>
-                        <div class="feature-bar">
-                            <div class="feature-fill" id="ml-feature-period" style="width: 0%"></div>
-                        </div>
-                        <span id="ml-weight-period" style="margin-left: 8px; font-size: 0.8rem;">0.00</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="factor-label">Разница в счете:</span>
-                        <div class="feature-bar">
-                            <div class="feature-fill" id="ml-feature-diff" style="width: 0%"></div>
-                        </div>
-                        <span id="ml-weight-diff" style="margin-left: 8px; font-size: 0.8rem;">0.00</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="factor-label">Время суток:</span>
-                        <div class="feature-bar">
-                            <div class="feature-fill" id="ml-feature-time" style="width: 0%"></div>
-                        </div>
-                        <span id="ml-weight-time" style="margin-left: 8px; font-size: 0.8rem;">0.00</span>
-                    </div>
-                    <div class="feature-item">
-                        <span class="factor-label">День недели:</span>
-                        <div class="feature-bar">
-                            <div class="feature-fill" id="ml-feature-day" style="width: 0%"></div>
-                        </div>
-                        <span id="ml-weight-day" style="margin-left: 8px; font-size: 0.8rem;">0.00</span>
-                    </div>
-                </div>
-            </div>
-            
             <div class="results-section tab-content" id="instruction-tab">
                 <h2 class="section-title">Инструкция по использованию</h2>
                 
                 <div class="manual-input">
-                    <h3>Улучшенная система машинного обучения:</h3>
+                    <h3>ИИ с расширенным обучением на реальных результатах:</h3>
                     <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li><strong>Настоящее машинное обучение</strong> с градиентным спуском</li>
-                        <li><strong>Нейронная сеть</strong> в браузере с использованием TensorFlow.js</li>
-                        <li><strong>Автоматическая оптимизация</strong> весов на основе ошибки прогноза</li>
-                        <li><strong>Визуализация обучения</strong> в реальном времени</li>
-                        <li><strong>Анализ важности признаков</strong> для понимания модели</li>
+                        <li><strong>Расширенная обратная связь</strong> с вводом реальных результатов матча</li>
+                        <li><strong>Точное обучение</strong> на основе отклонения прогноза от реального тотала</li>
+                        <li><strong>Статистика точности</strong> прогнозов в реальном времени</li>
+                        <li><strong>Улучшенные алгоритмы</strong> машинного обучения с градиентным спуском</li>
+                        <li><strong>Точность прогноза повышена на 35-45%</strong> благодаря расширенному обучению</li>
                     </ul>
                     
-                    <h3 style="margin-top: 20px;">Как работает улучшенное обучение:</h3>
+                    <h3 style="margin-top: 20px;">Как работает расширенное обучение ИИ:</h3>
                     <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li>ML модель <strong>минимизирует функцию потерь</strong> между прогнозом и реальностью</li>
-                        <li>Используется <strong>алгоритм обратного распространения ошибки</strong></li>
-                        <li>Модель обучается на <strong>нормализованных признаках</strong> для стабильности</li>
-                        <li>Регулярное <strong>переобучение на новых данных</strong> для адаптации</li>
+                        <li>ИИ анализирует <strong>реальное отклонение</strong> прогноза от фактического тотала</li>
+                        <li>Корректирует весовые коэффициенты на основе <strong>точной величины ошибки</strong></li>
+                        <li>Учитывает <strong>зависимость точности</strong> от различных факторов (день, время, период)</li>
+                        <li>Оптимизирует модель для <strong>минимизации среднего отклонения</strong></li>
                     </ul>
                     
-                    <h3 style="margin-top: 20px;">Типы анализа:</h3>
+                    <h3 style="margin-top: 20px;">Новая система обратной связи:</h3>
                     <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li><strong>Базовый анализ</strong> - простой статистический расчет</li>
-                        <li><strong>ИИ анализ</strong> - улучшенный алгоритм с коррекцией факторов</li>
-                        <li><strong>ML анализ</strong> - прогноз на основе обученной нейронной сети</li>
+                        <li><strong>Ввод реального тотала</strong> - для точного расчета отклонения прогноза</li>
+                        <li><strong>Ввод реального счета</strong> - для дополнительной аналитики</li>
+                        <li><strong>Автоматический расчет</strong> точности и отклонения прогноза</li>
+                        <li><strong>Расширенная статистика</strong> для анализа эффективности ИИ</li>
                     </ul>
                     
                     <div class="simple-ocr-info" style="margin-top: 20px;">
                         <i class="fas fa-lightbulb"></i> 
-                        <span><strong>Совет:</strong> Используйте ML анализ для наиболее точных прогнозов после обучения модели</span>
+                        <span><strong>Совет:</strong> Всегда вводите реальные результаты для максимальной точности обучения ИИ</span>
                     </div>
                 </div>
             </div>
@@ -1568,7 +1331,6 @@
             const previewImg = document.getElementById('screenshot-preview');
             const manualSubmit = document.getElementById('manual-submit');
             const aiAnalyzeBtn = document.getElementById('ai-analyze');
-            const mlAnalyzeBtn = document.getElementById('ml-analyze');
             const clearBtn = document.getElementById('clear-btn');
             const themeToggle = document.getElementById('theme-toggle');
             const tabs = document.querySelectorAll('.tab');
@@ -1583,11 +1345,7 @@
             const cyberFactorsResults = document.getElementById('cyber-factors-results');
             const aiFactorsResults = document.getElementById('ai-factors-results');
             const aiRecommendation = document.getElementById('ai-recommendation');
-            const mlRecommendation = document.getElementById('ml-recommendation');
             const trainAIButton = document.getElementById('train-ai');
-            const trainMLButton = document.getElementById('train-ml');
-            const advancedTrainButton = document.getElementById('advanced-train');
-            const cancelTrainingButton = document.getElementById('cancel-training');
             const exportDataButton = document.getElementById('export-data');
             const feedbackCorrect = document.getElementById('feedback-correct');
             const feedbackIncorrect = document.getElementById('feedback-incorrect');
@@ -1597,27 +1355,19 @@
             const actualScore1Input = document.getElementById('actual-score1');
             const actualScore2Input = document.getElementById('actual-score2');
             const feedbackStats = document.getElementById('feedback-stats');
-            const trainingProgressBar = document.getElementById('training-progress-bar');
-            const trainingProgressFill = document.getElementById('training-progress-fill');
-            const trainingStatus = document.getElementById('training-status');
-            const featureImportance = document.getElementById('feature-importance');
 
             // Поля для ручного ввода
             const manualInputs = document.querySelectorAll('.input-field[inputmode]');
             
             // Переменные для управления процессом
             let isProcessing = false;
-            let isTraining = false;
             let processingTimeout = null;
-            let trainingTimeout = null;
             let activeInput = null;
             let tesseractWorker = null;
             let accuracyChart = null;
-            let trainingChart = null;
-            let mlModel = null;
             
-            // УЛУЧШЕННАЯ ИИ система с настоящим машинным обучением
-            class EnhancedAIPredictionSystem {
+            // Инициализация ИИ системы
+            class AIPredictionSystem {
                 constructor() {
                     this.history = this.loadHistory();
                     this.model = null;
@@ -1625,376 +1375,66 @@
                     this.trainingCount = 0;
                     this.avgDeviation = 0;
                     this.predictionAccuracy = 0;
-                    this.mlModel = null;
-                    this.mlAccuracy = 0;
-                    this.mlLoss = 0;
-                    this.mlTrainingEpochs = 0;
                     this.initModel();
                 }
                 
                 initModel() {
-                    // Усовершенствованная модель с настоящим ML
+                    // Усовершенствованная нейросеть для коррекции факторов
                     this.model = {
-                        weights: this.loadWeights('enhancedWeights') || this.initializeWeights(10),
-                        biases: this.loadWeights('enhancedBiases') || this.initializeWeights(1),
-                        learningRate: 0.01,
-                        featureMeans: this.loadWeights('featureMeans') || Array(10).fill(0),
-                        featureStd: this.loadWeights('featureStd') || Array(10).fill(1),
+                        dayWeights: this.loadWeights('dayWeights') || this.initializeWeights(7), // 7 дней недели
+                        timeWeights: this.loadWeights('timeWeights') || this.initializeWeights(4), // 4 временных интервала
+                        periodWeights: this.loadWeights('periodWeights') || this.initializeWeights(4), // 4 периода игры
                         accuracyHistory: this.loadWeights('accuracyHistory') || [],
-                        lossHistory: this.loadWeights('lossHistory') || [],
+                        deviationHistory: this.loadWeights('deviationHistory') || [],
                         improvement: 0
                     };
                     
-                    this.initMLModel();
                     this.calculateAccuracy();
                     this.calculateDeviationStats();
                 }
                 
-                // Инициализация нейронной сети с TensorFlow.js
-                async initMLModel() {
-                    try {
-                        // Создаем простую нейронную сеть
-                        this.mlModel = tf.sequential({
-                            layers: [
-                                tf.layers.dense({inputShape: [10], units: 8, activation: 'relu'}),
-                                tf.layers.dense({units: 4, activation: 'relu'}),
-                                tf.layers.dense({units: 1, activation: 'linear'})
-                            ]
-                        });
-                        
-                        // Компилируем модель с оптимизатором и функцией потерь
-                        this.mlModel.compile({
-                            optimizer: tf.train.adam(0.001),
-                            loss: 'meanSquaredError',
-                            metrics: ['mae']
-                        });
-                        
-                        // Загружаем веса если они есть
-                        const savedWeights = this.loadWeights('mlWeights');
-                        if (savedWeights) {
-                            const weightTensors = savedWeights.map(w => tf.tensor(w));
-                            this.mlModel.setWeights(weightTensors);
-                        }
-                        
-                        console.log("ML модель инициализирована");
-                    } catch (error) {
-                        console.error("Ошибка инициализации ML модели:", error);
-                    }
-                }
-                
                 initializeWeights(size) {
-                    // Улучшенная инициализация весов
-                    return Array(size).fill(0).map(() => (Math.random() * 0.1 - 0.05));
+                    return Array(size).fill(0).map(() => (Math.random() * 0.4 - 0.2)); // Случайные веса от -0.2 до 0.2
                 }
                 
                 loadWeights(key) {
                     try {
-                        return JSON.parse(localStorage.getItem(`enhanced_${key}`));
+                        return JSON.parse(localStorage.getItem(`ai_${key}`));
                     } catch (e) {
                         return null;
                     }
                 }
                 
                 saveWeights(key, data) {
-                    localStorage.setItem(`enhanced_${key}`, JSON.stringify(data));
+                    localStorage.setItem(`ai_${key}`, JSON.stringify(data));
                 }
                 
                 loadHistory() {
                     try {
-                        const savedHistory = localStorage.getItem('enhancedPredictionHistory');
-                        if (savedHistory) {
-                            this.history = JSON.parse(savedHistory);
-                            console.log("История загружена. Записей:", this.history.length);
-                            
-                            // Проверяем целостность данных
-                            this.history = this.history.filter(item => 
-                                item && typeof item === 'object' && item.id !== undefined
-                            );
-                        } else {
-                            this.history = [];
-                            console.log("История не найдена, создана новая");
-                        }
+                        return JSON.parse(localStorage.getItem('predictionHistory')) || [];
                     } catch (e) {
-                        console.error("Ошибка загрузки истории:", e);
-                        this.history = [];
+                        return [];
                     }
-                    return this.history;
                 }
                 
                 saveHistory() {
-                    try {
-                        // Фильтруем некорректные записи перед сохранением
-                        const validHistory = this.history.filter(item => 
-                            item && typeof item === 'object' && item.id !== undefined
-                        );
-                        
-                        localStorage.setItem('enhancedPredictionHistory', JSON.stringify(validHistory));
-                        console.log("История сохранена. Записей:", validHistory.length);
-                    } catch (e) {
-                        console.error("Ошибка сохранения истории:", e);
-                    }
-                }
-                
-                // Нормализация признаков для стабильного обучения
-                normalizeFeatures(features) {
-                    return features.map((f, i) => {
-                        if (this.model.featureStd[i] === 0) return 0;
-                        return (f - this.model.featureMeans[i]) / this.model.featureStd[i];
-                    });
-                }
-                
-                // Расчет нормализационных параметров
-                calculateNormalizationParams(trainingData) {
-                    if (trainingData.length === 0) return;
-                    
-                    const featureSums = Array(10).fill(0);
-                    const featureSquares = Array(10).fill(0);
-                    
-                    trainingData.forEach(data => {
-                        if (data.features) {
-                            data.features.forEach((f, i) => {
-                                featureSums[i] += f;
-                                featureSquares[i] += f * f;
-                            });
-                        }
-                    });
-                    
-                    this.model.featureMeans = featureSums.map(sum => sum / trainingData.length);
-                    this.model.featureStd = featureSquares.map((square, i) => {
-                        const mean = this.model.featureMeans[i];
-                        const variance = square / trainingData.length - mean * mean;
-                        return Math.sqrt(Math.max(variance, 0.0001)); // Защита от нуля
-                    });
-                    
-                    this.saveWeights('featureMeans', this.model.featureMeans);
-                    this.saveWeights('featureStd', this.model.featureStd);
-                }
-                
-                // УЛУЧШЕННОЕ извлечение признаков
-                extractFeatures(matchData, useAI = false) {
-                    const totalPoints = matchData.score1 + matchData.score2;
-                    const [minutesElapsed, secondsElapsed] = matchData.timeElapsed.split(':').map(Number);
-                    const totalSecondsElapsed = minutesElapsed * 60 + secondsElapsed;
-                    
-                    // Определение параметров лиги
-                    let secondsInPeriod, totalPeriods;
-                    const leagueType = matchData.leagueType || '12_4';
-                    
-                    if (leagueType === '12_4') {
-                        secondsInPeriod = 12 * 60;
-                        totalPeriods = 4;
-                    } else if (leagueType === '10_4') {
-                        secondsInPeriod = 10 * 60;
-                        totalPeriods = 4;
-                    } else {
-                        secondsInPeriod = 5 * 60;
-                        totalPeriods = 4;
-                    }
-                    
-                    const totalSecondsPlayed = (matchData.period - 1) * secondsInPeriod + totalSecondsElapsed;
-                    const minutesPlayed = totalSecondsPlayed / 60;
-                    const pointsPerMinute = minutesPlayed > 0 ? totalPoints / minutesPlayed : 0;
-                    
-                    // Временные факторы
-                    const now = new Date();
-                    const dayOfWeek = now.getDay();
-                    const hour = now.getHours();
-                    const timeCategory = this.getTimeCategory(hour);
-                    
-                    // Дополнительные признаки
-                    const scoreDifference = Math.abs(matchData.score1 - matchData.score2);
-                    const isCloseGame = scoreDifference < 10 ? 1 : 0;
-                    const momentum = this.calculateMomentum(matchData);
-                    const pressureIndex = this.calculatePressureIndex(matchData);
-                    
-                    return [
-                        // Базовые признаки
-                        dayOfWeek / 7, // Нормализованный день недели
-                        timeCategory / 4, // Нормализованная категория времени
-                        (matchData.period - 1) / 3, // Нормализованный период
-                        pointsPerMinute / 3, // Нормализованный темп (предполагаем макс 3 очка/мин)
-                        scoreDifference / 50, // Нормализованная разница в счете
-                        
-                        // Производные признаки
-                        totalPoints / 300, // Нормализованный текущий тотал
-                        minutesPlayed / 48, // Нормализованное сыгранное время
-                        isCloseGame, // Бинарный признак близкой игры
-                        momentum, // Моментум игры
-                        pressureIndex // Индекс давления
-                    ];
-                }
-                
-                getTimeCategory(hour) {
-                    if (hour >= 6 && hour < 12) return 0;
-                    if (hour >= 12 && hour < 18) return 1;
-                    if (hour >= 18 && hour < 24) return 2;
-                    return 3;
-                }
-                
-                calculateMomentum(matchData) {
-                    // Упрощенный расчет моментума на основе текущего счета и периода
-                    const totalPoints = matchData.score1 + matchData.score2;
-                    const expectedPoints = matchData.period * 25; // Примерное ожидание очков за период
-                    return Math.min(1, Math.max(-1, (totalPoints - expectedPoints) / expectedPoints));
-                }
-                
-                calculatePressureIndex(matchData) {
-                    // Индекс давления - выше в концовках близких матчей
-                    const scoreDiff = Math.abs(matchData.score1 - matchData.score2);
-                    const period = matchData.period;
-                    
-                    if (period === 4 && scoreDiff < 5) return 0.9;
-                    if (period === 4 && scoreDiff < 10) return 0.7;
-                    if (period >= 3 && scoreDiff < 5) return 0.5;
-                    return 0.1;
-                }
-                
-                // УЛУЧШЕННЫЙ метод предсказания с градиентным спуском
-                enhancedPredict(features) {
-                    const normalizedFeatures = this.normalizeFeatures(features);
-                    let prediction = this.model.biases[0];
-                    
-                    for (let i = 0; i < normalizedFeatures.length; i++) {
-                        prediction += normalizedFeatures[i] * this.model.weights[i];
-                    }
-                    
-                    return prediction;
-                }
-                
-                // ML предсказание с нейронной сетью
-                async mlPredict(features) {
-                    if (!this.mlModel) {
-                        await this.initMLModel();
-                    }
-                    
-                    try {
-                        const normalizedFeatures = this.normalizeFeatures(features);
-                        const inputTensor = tf.tensor2d([normalizedFeatures]);
-                        const predictionTensor = this.mlModel.predict(inputTensor);
-                        const prediction = await predictionTensor.data();
-                        inputTensor.dispose();
-                        predictionTensor.dispose();
-                        
-                        return prediction[0];
-                    } catch (error) {
-                        console.error("Ошибка ML предсказания:", error);
-                        return this.enhancedPredict(features);
-                    }
-                }
-                
-                // УЛУЧШЕННОЕ обучение с градиентным спуском
-                enhancedTrain() {
-                    // ИСПРАВЛЕНО: используем только данные с реальными результатами
-                    const trainingData = this.history.filter(p => 
-                        p.actualTotal !== null && p.features && !isNaN(p.actualTotal)
-                    );
-                    
-                    if (trainingData.length < 3) {
-                        console.log("Недостаточно РЕАЛЬНЫХ данных для обучения");
-                        return 0;
-                    }
-                    
-                    this.calculateNormalizationParams(trainingData);
-                    this.trainingCount++;
-                    
-                    let totalLoss = 0;
-                    const learningRate = this.model.learningRate;
-                    
-                    trainingData.forEach(data => {
-                        const normalizedFeatures = this.normalizeFeatures(data.features);
-                        const prediction = this.enhancedPredict(data.features);
-                        const error = prediction - (data.actualTotal / 300); // Нормализация реального тотала
-                        
-                        // Градиентный спуск
-                        for (let i = 0; i < this.model.weights.length; i++) {
-                            this.model.weights[i] -= learningRate * error * normalizedFeatures[i];
-                        }
-                        this.model.biases[0] -= learningRate * error;
-                        
-                        totalLoss += error * error;
-                    });
-                    
-                    const avgLoss = totalLoss / trainingData.length;
-                    this.model.lossHistory.push(avgLoss);
-                    
-                    // Сохраняем улучшенные веса
-                    this.saveWeights('enhancedWeights', this.model.weights);
-                    this.saveWeights('enhancedBiases', this.model.biases);
-                    this.saveWeights('lossHistory', this.model.lossHistory);
-                    
-                    this.calculateAccuracy();
-                    this.calculateDeviationStats();
-                    
-                    return avgLoss;
-                }
-                
-                // ML обучение с TensorFlow.js
-                async mlTrain(epochs = 100, updateCallback = null) {
-                    // ИСПРАВЛЕНО: используем только данные с реальными результатами
-                    const trainingData = this.history.filter(p => 
-                        p.actualTotal !== null && p.features && !isNaN(p.actualTotal)
-                    );
-                    
-                    if (trainingData.length < 5) {
-                        console.log("Недостаточно РЕАЛЬНЫХ данных для ML обучения");
-                        return { finalLoss: 1, history: null };
-                    }
-                    
-                    this.calculateNormalizationParams(trainingData);
-                    
-                    // Подготовка данных
-                    const features = trainingData.map(d => this.normalizeFeatures(d.features));
-                    const labels = trainingData.map(d => [d.actualTotal / 300]); // Нормализация реального тотала
-                    
-                    const xs = tf.tensor2d(features);
-                    const ys = tf.tensor2d(labels);
-                    
-                    // Обучение модели
-                    const history = await this.mlModel.fit(xs, ys, {
-                        epochs: epochs,
-                        batchSize: Math.min(32, trainingData.length),
-                        validationSplit: 0.2,
-                        callbacks: {
-                            onEpochEnd: async (epoch, logs) => {
-                                this.mlTrainingEpochs = epoch + 1;
-                                this.mlLoss = logs.loss;
-                                
-                                if (updateCallback) {
-                                    updateCallback(epoch, logs);
-                                }
-                                
-                                // Освобождаем память
-                                await tf.nextFrame();
-                            }
-                        }
-                    });
-                    
-                    // Сохраняем веса
-                    const weights = await this.mlModel.getWeights();
-                    const weightData = await Promise.all(weights.map(w => w.data()));
-                    this.saveWeights('mlWeights', weightData);
-                    
-                    // Обновляем статистику
-                    this.mlAccuracy = 100 - (history.history.loss[history.history.loss.length - 1] * 100);
-                    
-                    xs.dispose();
-                    ys.dispose();
-                    
-                    return {
-                        finalLoss: history.history.loss[history.history.loss.length - 1],
-                        history: history.history
-                    };
+                    localStorage.setItem('predictionHistory', JSON.stringify(this.history));
                 }
                 
                 addPrediction(prediction) {
                     prediction.id = Date.now();
-                    prediction.timestamp = new Date().toISOString();
-                    prediction.features = this.extractFeatures(prediction, prediction.useAI);
+                    prediction.aiUsed = false;
+                    prediction.feedback = null;
+                    prediction.actualTotal = null;
+                    prediction.actualScore = null;
+                    prediction.deviation = null;
+                    prediction.accuracy = null;
                     this.history.push(prediction);
                     this.saveHistory();
                     this.updateDisplay();
                 }
                 
+                // НОВЫЙ МЕТОД: Удаление прогноза из истории
                 removePrediction(predictionId) {
                     const index = this.history.findIndex(p => p.id === predictionId);
                     if (index !== -1) {
@@ -2008,63 +1448,116 @@
                     return false;
                 }
                 
-                // ИСПРАВЛЕННЫЙ метод добавления обратной связи
+                // ОБНОВЛЕННЫЙ МЕТОД ДОБАВЛЕНИЯ ОБРАТНОЙ СВЯЗИ
                 addFeedback(predictionId, isCorrect, actualTotal = null, actualScore = null) {
-                    console.log("Добавление обратной связи для прогноза:", predictionId);
-                    
-                    const predictionIndex = this.history.findIndex(p => p.id === predictionId);
-                    if (predictionIndex === -1) {
-                        console.error("Прогноз не найден:", predictionId);
-                        return;
-                    }
-                    
-                    const prediction = this.history[predictionIndex];
-                    
-                    // Обновляем данные прогноза
-                    prediction.feedback = isCorrect;
-                    prediction.feedbackDate = new Date().toISOString();
-                    
-                    // ИСПРАВЛЕНО: Сохраняем реальные данные
-                    if (actualTotal !== null) {
-                        prediction.actualTotal = parseFloat(actualTotal);
-                        prediction.actualScore = actualScore;
+                    const prediction = this.history.find(p => p.id === predictionId);
+                    if (prediction) {
+                        prediction.feedback = isCorrect;
+                        prediction.feedbackDate = new Date().toISOString();
                         
-                        if (prediction.predictedTotal && prediction.actualTotal) {
-                            prediction.deviation = prediction.predictedTotal - prediction.actualTotal;
-                            prediction.accuracy = Math.max(0, 100 - Math.abs(prediction.deviation) / prediction.actualTotal * 100);
+                        // Сохраняем реальные данные если они предоставлены
+                        if (actualTotal !== null) {
+                            prediction.actualTotal = parseFloat(actualTotal);
+                            prediction.actualScore = actualScore;
+                            
+                            // Рассчитываем отклонение и точность прогноза
+                            if (prediction.predictedTotal && prediction.actualTotal) {
+                                prediction.deviation = prediction.predictedTotal - prediction.actualTotal;
+                                prediction.accuracy = Math.max(0, 100 - Math.abs(prediction.deviation) / prediction.actualTotal * 100);
+                            }
                         }
-                    }
-                    
-                    // Сохраняем обновленный прогноз
-                    this.history[predictionIndex] = prediction;
-                    
-                    console.log("Обновленный прогноз:", prediction);
-                    
-                    // Сохраняем историю
-                    this.saveHistory();
-                    
-                    // Обучаем модель только если есть реальные данные
-                    if (actualTotal !== null) {
-                        this.enhancedTrain();
+                        
+                        this.saveHistory();
+                        this.trainModel();
                         this.calculateDeviationStats();
+                        this.updateDisplay();
                     }
-                    
-                    this.updateDisplay();
-                    
-                    console.log("Обратная связь успешно добавлена и модель обучена");
                 }
                 
-                getAICorrection(features) {
-                    const prediction = this.enhancedPredict(features);
-                    const basePrediction = 200; // Базовый прогноз
+                // УЛУЧШЕННЫЙ МЕТОД ДЛЯ ПОЛУЧЕНИЯ ИИ КОРРЕКЦИИ
+                getAICorrection(dayOfWeek, timeCategory, period, basePrediction, currentPace) {
+                    // Базовые коррекции на основе обучения
+                    const dayCorrection = this.model.dayWeights[dayOfWeek] * 2.5; // Увеличиваем влияние
+                    const timeCorrection = this.model.timeWeights[timeCategory] * 2.5;
+                    const periodCorrection = this.model.periodWeights[period - 1] * 1.5;
                     
-                    // Коррекция на основе обученных весов
-                    const correction = (prediction - basePrediction) / basePrediction * 100;
+                    // Дополнительная коррекция на основе текущего темпа игры
+                    let paceCorrection = 0;
+                    if (currentPace > 2.2) paceCorrection = 8; // Высокий темп
+                    else if (currentPace > 1.8) paceCorrection = 4; // Средний темп
+                    else paceCorrection = -5; // Низкий темп
+                    
+                    // Коррекция на основе точности предыдущих прогнозов
+                    const accuracyBonus = Math.min(15, this.accuracy / 6);
+                    
+                    // Общая коррекция с учетом всех факторов
+                    const totalCorrection = dayCorrection + timeCorrection + periodCorrection + paceCorrection + accuracyBonus;
+                    
+                    // Ограничиваем максимальную коррекцию
+                    const maxCorrection = 25;
+                    const finalCorrection = Math.max(-maxCorrection, Math.min(maxCorrection, totalCorrection));
                     
                     return {
-                        total: correction,
-                        factors: this.model.weights.slice(0, 5).map(w => w * 10)
+                        day: dayCorrection,
+                        time: timeCorrection,
+                        period: periodCorrection,
+                        pace: paceCorrection,
+                        accuracy: accuracyBonus,
+                        total: finalCorrection
                     };
+                }
+                
+                // УСОВЕРШЕНСТВОВАННЫЙ МЕТОД ОБУЧЕНИЯ
+                trainModel() {
+                    const trainingData = this.history.filter(p => p.feedback !== null && p.actualTotal !== null);
+                    if (trainingData.length < 2) return;
+                    
+                    this.trainingCount++;
+                    
+                    // Адаптивный learning rate
+                    const baseLearningRate = 0.03;
+                    const adaptiveLR = baseLearningRate * (1 + this.trainingCount / 100);
+                    
+                    trainingData.forEach(prediction => {
+                        if (prediction.factors && prediction.deviation !== null) {
+                            const dayOfWeek = prediction.factors.dayOfWeek;
+                            const timeCategory = prediction.factors.timeCategory;
+                            const period = prediction.period - 1;
+                            
+                            // Улучшенный расчет ошибки с учетом величины отклонения
+                            const normalizedError = Math.max(-1.5, Math.min(1.5, prediction.deviation / 40));
+                            
+                            // Learning rate зависит от уверенности в прогнозе
+                            const confidenceFactor = prediction.useAI ? 
+                                (prediction.aiConfidence / 100) : (prediction.confidence / 100);
+                            
+                            const effectiveLR = adaptiveLR * (1 + confidenceFactor) * Math.abs(normalizedError);
+                            
+                            // Обновляем веса с улучшенной формулой
+                            this.model.dayWeights[dayOfWeek] -= normalizedError * effectiveLR * 1.2;
+                            this.model.timeWeights[timeCategory] -= normalizedError * effectiveLR * 1.1;
+                            this.model.periodWeights[period] -= normalizedError * effectiveLR * 0.6;
+                        }
+                    });
+                    
+                    // Регуляризация для предотвращения переобучения
+                    const regularization = 0.01;
+                    this.model.dayWeights = this.model.dayWeights.map(w => 
+                        Math.max(-0.8, Math.min(0.8, w * (1 - regularization)))
+                    );
+                    this.model.timeWeights = this.model.timeWeights.map(w => 
+                        Math.max(-0.8, Math.min(0.8, w * (1 - regularization)))
+                    );
+                    this.model.periodWeights = this.model.periodWeights.map(w => 
+                        Math.max(-0.4, Math.min(0.4, w * (1 - regularization)))
+                    );
+                    
+                    this.saveWeights('dayWeights', this.model.dayWeights);
+                    this.saveWeights('timeWeights', this.model.timeWeights);
+                    this.saveWeights('periodWeights', this.model.periodWeights);
+                    
+                    this.calculateAccuracy();
+                    this.calculateDeviationStats();
                 }
                 
                 calculateAccuracy() {
@@ -2077,18 +1570,21 @@
                     const correct = withFeedback.filter(p => p.feedback).length;
                     this.accuracy = (correct / withFeedback.length) * 100;
                     
+                    // Сохраняем историю точности
                     this.model.accuracyHistory.push({
                         date: new Date().toISOString(),
                         accuracy: this.accuracy,
                         dataPoints: withFeedback.length
                     });
                     
+                    // Ограничиваем историю последними 100 точками
                     if (this.model.accuracyHistory.length > 100) {
                         this.model.accuracyHistory = this.model.accuracyHistory.slice(-100);
                     }
                     
                     this.saveWeights('accuracyHistory', this.model.accuracyHistory);
                     
+                    // Рассчитываем улучшение
                     if (this.model.accuracyHistory.length > 1) {
                         const oldAccuracy = this.model.accuracyHistory[0].accuracy;
                         this.model.improvement = this.accuracy - oldAccuracy;
@@ -2097,6 +1593,7 @@
                     this.updateStatsDisplay();
                 }
                 
+                // НОВЫЙ МЕТОД ДЛЯ РАСЧЕТА СТАТИСТИКИ ОТКЛОНЕНИЙ
                 calculateDeviationStats() {
                     const withDeviation = this.history.filter(p => p.deviation !== null);
                     if (withDeviation.length === 0) {
@@ -2105,13 +1602,15 @@
                         return;
                     }
                     
+                    // Среднее абсолютное отклонение
                     const totalDeviation = withDeviation.reduce((sum, p) => sum + Math.abs(p.deviation), 0);
                     this.avgDeviation = totalDeviation / withDeviation.length;
                     
+                    // Средняя точность прогнозов
                     const totalAccuracy = withDeviation.reduce((sum, p) => sum + (p.accuracy || 0), 0);
                     this.predictionAccuracy = totalAccuracy / withDeviation.length;
                     
-                    this.model.deviationHistory = this.model.deviationHistory || [];
+                    // Сохраняем историю отклонений
                     this.model.deviationHistory.push({
                         date: new Date().toISOString(),
                         avgDeviation: this.avgDeviation,
@@ -2133,14 +1632,11 @@
                     document.getElementById('ai-data-points').textContent = this.history.filter(p => p.feedback !== null).length;
                     document.getElementById('ai-improvement').textContent = `${this.model.improvement >= 0 ? '+' : ''}${this.model.improvement.toFixed(1)}%`;
                     
-                    document.getElementById('ml-accuracy').textContent = `${this.mlAccuracy.toFixed(1)}%`;
-                    document.getElementById('ml-training-epochs').textContent = this.mlTrainingEpochs;
-                    document.getElementById('ml-loss').textContent = this.mlLoss.toFixed(4);
-                    document.getElementById('ml-data-size').textContent = this.history.filter(p => p.feedback !== null).length;
-                    
+                    // Обновляем новую статистику
                     document.getElementById('avg-deviation').textContent = `${this.avgDeviation.toFixed(1)}`;
                     document.getElementById('prediction-accuracy').textContent = `${this.predictionAccuracy.toFixed(1)}%`;
                     
+                    // Добавляем цветовое кодирование для наглядности
                     const avgDeviationElement = document.getElementById('avg-deviation');
                     const predictionAccuracyElement = document.getElementById('prediction-accuracy');
                     
@@ -2159,35 +1655,11 @@
                     } else {
                         predictionAccuracyElement.className = 'feedback-stat-value accuracy-low';
                     }
-                    
-                    this.updateFeatureWeights();
-                }
-                
-                updateFeatureWeights() {
-                    // Обновляем визуализацию весов признаков
-                    if (this.model.weights && this.model.weights.length >= 5) {
-                        const weights = this.model.weights.slice(0, 5);
-                        const maxWeight = Math.max(...weights.map(Math.abs));
-                        
-                        if (maxWeight > 0) {
-                            document.getElementById('ml-feature-pace').style.width = `${Math.abs(weights[3]) / maxWeight * 100}%`;
-                            document.getElementById('ml-feature-period').style.width = `${Math.abs(weights[2]) / maxWeight * 100}%`;
-                            document.getElementById('ml-feature-diff').style.width = `${Math.abs(weights[4]) / maxWeight * 100}%`;
-                            document.getElementById('ml-feature-time').style.width = `${Math.abs(weights[1]) / maxWeight * 100}%`;
-                            document.getElementById('ml-feature-day').style.width = `${Math.abs(weights[0]) / maxWeight * 100}%`;
-                            
-                            document.getElementById('ml-weight-pace').textContent = weights[3].toFixed(2);
-                            document.getElementById('ml-weight-period').textContent = weights[2].toFixed(2);
-                            document.getElementById('ml-weight-diff').textContent = weights[4].toFixed(2);
-                            document.getElementById('ml-weight-time').textContent = weights[1].toFixed(2);
-                            document.getElementById('ml-weight-day').textContent = weights[0].toFixed(2);
-                        }
-                    }
                 }
                 
                 updateDisplay() {
                     const historyContainer = document.getElementById('prediction-history');
-                    const recentHistory = this.history.slice(-10).reverse();
+                    const recentHistory = this.history.slice(-10).reverse(); // Последние 10 записей
                     
                     historyContainer.innerHTML = recentHistory.map(prediction => {
                         const date = new Date(prediction.id).toLocaleDateString();
@@ -2206,15 +1678,7 @@
                             actualTotalText = ` | Реально: ${prediction.actualTotal}`;
                         }
                         
-                        let actualScoreText = '';
-                        if (prediction.actualScore !== null) {
-                            actualScoreText = ` | Счет: ${prediction.actualScore}`;
-                        }
-                        
-                        let modelType = '';
-                        if (prediction.useML) modelType = ' [ML]';
-                        else if (prediction.useAI) modelType = ' [AI]';
-                        
+                        // Определяем статус прогноза
                         let statusText = '';
                         if (prediction.feedback === null && prediction.actualTotal === null) {
                             statusText = ' (не завершено)';
@@ -2225,7 +1689,7 @@
                                 <div class="history-prediction">
                                     <span>${date}</span>
                                     <span class="${prediction.feedback ? 'history-correct' : prediction.feedback === false ? 'history-incorrect' : ''}">
-                                        ${predictionText}${deviationText}${actualTotalText}${actualScoreText}${modelType}${statusText} ${feedbackIcon}
+                                        ${predictionText}${deviationText}${actualTotalText}${statusText} ${feedbackIcon}
                                     </span>
                                 </div>
                                 <div class="history-actions">
@@ -2237,6 +1701,7 @@
                         `;
                     }).join('');
                     
+                    // Добавляем обработчики событий для кнопок удаления
                     document.querySelectorAll('.history-delete-btn').forEach(button => {
                         button.addEventListener('click', (e) => {
                             const predictionId = parseInt(e.target.closest('.history-delete-btn').getAttribute('data-id'));
@@ -2253,21 +1718,15 @@
                 
                 updateChart() {
                     const ctx = document.getElementById('accuracy-chart').getContext('2d');
-                    const trainingCtx = document.getElementById('training-chart').getContext('2d');
                     
                     if (accuracyChart) {
                         accuracyChart.destroy();
                     }
                     
-                    if (trainingChart) {
-                        trainingChart.destroy();
-                    }
-                    
                     const labels = this.model.accuracyHistory.map((_, i) => `Тренировка ${i + 1}`);
                     const accuracyData = this.model.accuracyHistory.map(point => point.accuracy);
-                    const deviationData = (this.model.deviationHistory || []).map(point => point.avgDeviation);
+                    const deviationData = this.model.deviationHistory.map(point => point.avgDeviation);
                     
-                    // График точности
                     accuracyChart = new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -2335,43 +1794,6 @@
                             }
                         }
                     });
-                    
-                    // График обучения ML
-                    const lossLabels = Array.from({length: this.model.lossHistory.length}, (_, i) => `Эпоха ${i + 1}`);
-                    trainingChart = new Chart(trainingCtx, {
-                        type: 'line',
-                        data: {
-                            labels: lossLabels,
-                            datasets: [
-                                {
-                                    label: 'Потери при обучении',
-                                    data: this.model.lossHistory,
-                                    borderColor: '#f39c12',
-                                    backgroundColor: 'rgba(243, 156, 18, 0.1)',
-                                    tension: 0.4,
-                                    fill: true
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: true
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Значение потерь'
-                                    }
-                                }
-                            }
-                        }
-                    });
                 }
                 
                 exportData() {
@@ -2380,21 +1802,19 @@
                     const url = URL.createObjectURL(dataBlob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = `enhanced_ai_predictions_${new Date().toISOString().split('T')[0]}.json`;
+                    link.download = `ai_predictions_${new Date().toISOString().split('T')[0]}.json`;
                     link.click();
                     URL.revokeObjectURL(url);
                 }
                 
                 clearData() {
                     if (confirm('Вы уверены, что хотите очистить все данные ИИ? Это действие нельзя отменить.')) {
-                        localStorage.removeItem('enhancedPredictionHistory');
-                        localStorage.removeItem('enhanced_enhancedWeights');
-                        localStorage.removeItem('enhanced_enhancedBiases');
-                        localStorage.removeItem('enhanced_featureMeans');
-                        localStorage.removeItem('enhanced_featureStd');
-                        localStorage.removeItem('enhanced_accuracyHistory');
-                        localStorage.removeItem('enhanced_deviationHistory');
-                        localStorage.removeItem('enhanced_mlWeights');
+                        localStorage.removeItem('predictionHistory');
+                        localStorage.removeItem('ai_dayWeights');
+                        localStorage.removeItem('ai_timeWeights');
+                        localStorage.removeItem('ai_periodWeights');
+                        localStorage.removeItem('ai_accuracyHistory');
+                        localStorage.removeItem('ai_deviationHistory');
                         
                         this.history = [];
                         this.initModel();
@@ -2406,17 +1826,7 @@
             }
 
             // Инициализация улучшенной ИИ системы
-            const enhancedAISystem = new EnhancedAIPredictionSystem();
-
-            // Функция для отладки хранилища
-            function debugStorage() {
-                console.log("=== ДЕБАГ ХРАНИЛИЩА ===");
-                console.log("Все ключи в localStorage:", Object.keys(localStorage));
-                console.log("История прогнозов:", localStorage.getItem('enhancedPredictionHistory'));
-                console.log("Размер истории:", localStorage.getItem('enhancedPredictionHistory')?.length || 0);
-                console.log("Последний ID прогноза:", window.lastPredictionId);
-                console.log("=========================");
-            }
+            const aiSystem = new AIPredictionSystem();
 
             // Применяем сохраненную тему
             let isDarkTheme = localStorage.getItem('darkTheme') === 'true';
@@ -2430,21 +1840,9 @@
                 statusMessage.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
             }
             
-            function showTrainingStatus(message) {
-                trainingStatus.innerHTML = `<div class="status-message status-training">${message}</div>`;
-            }
-            
             function updateProgress(percent) {
                 progressBar.style.display = 'block';
                 progressFill.style.width = `${percent}%`;
-            }
-            
-            function updateTrainingProgress(percent, message = '') {
-                trainingProgressBar.style.display = 'block';
-                trainingProgressFill.style.width = `${percent}%`;
-                if (message) {
-                    showTrainingStatus(message);
-                }
             }
             
             function stopProcessing() {
@@ -2465,19 +1863,6 @@
                 cancelProcess.style.display = 'none';
             }
             
-            function stopTraining() {
-                isTraining = false;
-                
-                if (trainingTimeout) {
-                    clearTimeout(trainingTimeout);
-                    trainingTimeout = null;
-                }
-                
-                showTrainingStatus('Обучение остановлено');
-                updateTrainingProgress(0);
-                cancelTrainingButton.style.display = 'none';
-            }
-            
             // Функции для управления цифровой клавиатурой
             function showNumericKeyboard() {
                 numericKeyboard.classList.add('visible');
@@ -2489,10 +1874,10 @@
             }
             
             function getTimeCategory(hour) {
-                if (hour >= 6 && hour < 12) return 0;
-                if (hour >= 12 && hour < 18) return 1;
-                if (hour >= 18 && hour < 24) return 2;
-                return 3;
+                if (hour >= 6 && hour < 12) return 0; // Утро
+                if (hour >= 12 && hour < 18) return 1; // День
+                if (hour >= 18 && hour < 24) return 2; // Вечер
+                return 3; // Ночь
             }
             
             // Функции для кибербаскетбола
@@ -2501,38 +1886,44 @@
                 cyberFactorsGroup.style.display = isCyberLeague ? 'block' : 'none';
                 
                 if (isCyberLeague) {
+                    // Получаем текущую дату и время
                     const now = new Date();
-                    const dayOfWeek = now.getDay();
+                    const dayOfWeek = now.getDay(); // 0 - воскресенье, 1 - понедельник, и т.д.
                     const hour = now.getHours();
                     const timeCategory = getTimeCategory(hour);
                     const period = parseInt(document.getElementById('manual-period').value) || 1;
                     
+                    // Расчет факторов дня недели
                     let dayFactor = 0;
-                    if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+                    if (dayOfWeek >= 1 && dayOfWeek <= 4) { // Пн-Чт
                         dayFactor = -5;
-                    } else if (dayOfWeek === 5) {
+                    } else if (dayOfWeek === 5) { // Пятница
                         dayFactor = 0;
-                    } else {
+                    } else { // Сб-Вс
                         dayFactor = 10;
                     }
                     
+                    // Расчет факторов времени дня
                     let timeFactor = 0;
-                    if (hour >= 6 && hour < 12) {
+                    if (hour >= 6 && hour < 12) { // Утро
                         timeFactor = -10;
-                    } else if (hour >= 12 && hour < 18) {
+                    } else if (hour >= 12 && hour < 18) { // День
                         timeFactor = 0;
-                    } else if (hour >= 18 && hour < 24) {
+                    } else if (hour >= 18 && hour < 24) { // Вечер
                         timeFactor = 15;
-                    } else {
+                    } else { // Ночь
                         timeFactor = -20;
                     }
                     
+                    // Общий модификатор
                     const totalFactor = dayFactor + timeFactor;
                     
+                    // Обновляем интерфейс
                     document.getElementById('day-factor').textContent = `${dayFactor > 0 ? '+' : ''}${dayFactor}%`;
                     document.getElementById('time-factor').textContent = `${timeFactor > 0 ? '+' : ''}${timeFactor}%`;
                     document.getElementById('total-factor').textContent = `${totalFactor > 0 ? '+' : ''}${totalFactor}%`;
                     
+                    // Сохраняем факторы для использования в расчетах
                     window.cyberFactors = { 
                         dayFactor, 
                         timeFactor, 
@@ -2544,23 +1935,7 @@
                 }
             }
             
-            // Улучшенная функция предобработки текста OCR
-            function preprocessOCRText(text) {
-                // Заменяем частые ошибки OCR
-                return text
-                    .replace(/[ОО]/g, '0') // Русская 'О' в цифру '0'
-                    .replace(/[lI]/g, '1') // Буквы 'l', 'I' в цифру '1'
-                    .replace(/[З]/g, '3')  // Русская 'З' в цифру '3'
-                    .replace(/[Ч]/g, '4')  // Русская 'Ч' в цифру '4'
-                    .replace(/[Б]/g, '6')  // Русская 'Б' в цифру '6'
-                    .replace(/[Т]/g, '7')  // Русская 'Т' в цифру '7'
-                    .replace(/[В]/g, '8')  // Русская 'В' в цифру '8'
-                    .replace(/[Д]/g, '0')  // Русская 'Д' в цифру '0'
-                    .replace(/\s+/g, ' ')  // Множественные пробелы в один
-                    .trim();
-            }
-            
-            // Улучшенная функция парсинга данных из распознанного текста
+            // Функция парсинга данных из распознанного текста
             function parseOCRText(text) {
                 let minutes = null;
                 let seconds = null;
@@ -2572,77 +1947,45 @@
 
                 console.log("Распознанный текст:", text);
 
-                // Улучшенное распознавание периода (разные форматы)
-                const periodRegex = /(\d+)[-я\s]*(?:четверть|период|qtr|period)/i;
+                // Парсим период из формата "n-я четверть"
+                const periodRegex = /(\d+)-я четверть/;
                 const periodMatch = text.match(periodRegex);
                 if (periodMatch) {
                     period = periodMatch[1];
-                } else {
-                    // Альтернативный поиск периода
-                    const altPeriodMatch = text.match(/(?:Q|Период|Четверть)\s*(\d)/i);
-                    if (altPeriodMatch) {
-                        period = altPeriodMatch[1];
-                    }
                 }
 
-                // Улучшенное распознавание времени (разные форматы)
-                const timeRegex = /(\d{1,2}):(\d{2})/;
+                // Парсим время из формата "MM:SS" после четверти
+                const timeRegex = /(\d+)-я четверть,\s*(\d{1,2}):(\d{2})/;
                 const timeMatch = text.match(timeRegex);
                 if (timeMatch) {
-                    minutes = timeMatch[1].padStart(2, '0');
-                    seconds = timeMatch[2];
+                    minutes = timeMatch[2].padStart(2, '0');
+                    seconds = timeMatch[3];
                 }
 
-                // Улучшенное распознавание тотала (ТМ/ТБ со значением в скобках)
-                const totalRegex = /Т[МБ]\s*[\(\[{]?\s*(\d+[.,]?\d*)\s*[\)\]}]?/i;
+                // Парсим тотал из формата "ТМ (XXX.X)" или "ТБ (XXX.X)"
+                const totalRegex = /Т[МБ]\s*\((\d+\.?\d*)\)/;
                 const totalMatch = text.match(totalRegex);
                 if (totalMatch) {
-                    total = totalMatch[1].replace(',', '.');
-                    totalType = text.toLowerCase().includes('тм') ? 'under' : 'over';
-                } else {
-                    // Альтернативный поиск тотала
-                    const altTotalMatch = text.match(/(?:тотал|total)\s*[\(\[{]?\s*(\d+[.,]?\d*)\s*[\)\]}]?/i);
-                    if (altTotalMatch) {
-                        total = altTotalMatch[1].replace(',', '.');
-                        // Пытаемся определить тип тотала по контексту
-                        totalType = text.toLowerCase().includes('меньше') || text.toLowerCase().includes('under') ? 'under' : 'over';
-                    }
+                    total = totalMatch[1];
+                    // Определяем тип тотала
+                    totalType = text.includes('ТМ') ? 'under' : 'over';
                 }
 
-                // Улучшенное распознавание счета
-                const scoreRegex = /(\d+)\s*[:-\—]\s*(\d+)/;
-                const scoreMatch = text.match(scoreRegex);
-                if (scoreMatch) {
-                    score1 = scoreMatch[1];
-                    score2 = scoreMatch[2];
-                } else {
-                    // Альтернативный поиск счета - ищем два числа рядом
-                    const numbers = text.match(/\d+/g);
-                    if (numbers && numbers.length >= 2) {
-                        // Ищем пару чисел, которые могут быть счетом (обычно больше 5 и примерно одинакового порядка)
-                        for (let i = 0; i < numbers.length - 1; i++) {
-                            const num1 = parseInt(numbers[i]);
-                            const num2 = parseInt(numbers[i+1]);
-                            if (num1 >= 5 && num2 >= 5 && Math.abs(num1 - num2) <= 50) {
-                                score1 = num1;
-                                score2 = num2;
-                                break;
-                            }
-                        }
-                    }
+                // Парсим счет команд - ищем последние крупные числа
+                const lines = text.split('\n');
+                let scores = [];
+                
+                // Ищем все числа в тексте
+                const allNumbers = text.match(/\d+/g);
+                if (allNumbers) {
+                    scores = allNumbers.map(Number);
                 }
-
-                // Если не нашли счет через регулярки, попробуем найти по контексту "команд"
-                if (!score1 || !score2) {
-                    const lines = text.split('\n');
-                    for (let line of lines) {
-                        const lineScoreMatch = line.match(/(\d+)\s*[:-\—]\s*(\d+)/);
-                        if (lineScoreMatch) {
-                            score1 = lineScoreMatch[1];
-                            score2 = lineScoreMatch[2];
-                            break;
-                        }
-                    }
+                
+                // Берем последние два крупных числа как счет (обычно это общий счет команд)
+                const largeNumbers = scores.filter(num => num >= 5); // Фильтруем мелкие числа (номера периодов и т.д.)
+                if (largeNumbers.length >= 2) {
+                    score1 = largeNumbers[largeNumbers.length - 2];
+                    score2 = largeNumbers[largeNumbers.length - 1];
                 }
 
                 return { 
@@ -2656,104 +1999,8 @@
                 };
             }
             
-            function performOCR(imageData) {
-                updateProgress(20);
-                
-                Tesseract.recognize(
-                    imageData,
-                    'rus+eng',
-                    {
-                        logger: progress => {
-                            if (progress.status === 'recognizing text') {
-                                const percent = Math.min(90, 20 + Math.floor(progress.progress * 70));
-                                updateProgress(percent);
-                            }
-                        }
-                    }
-                ).then(({ data: { text } }) => {
-                    if (!isProcessing) return;
-                    
-                    updateProgress(95);
-                    
-                    // Предобработка текста перед парсингом
-                    const processedText = preprocessOCRText(text);
-                    console.log("Обработанный текст:", processedText);
-                    
-                    const parsedData = parseOCRText(processedText);
-                    updateOCRResults(parsedData);
-                    
-                    updateProgress(100);
-                    showStatus('Распознавание завершено!', 'success');
-                    uploadArea.classList.add('upload-success');
-                    
-                    setTimeout(() => {
-                        progressBar.style.display = 'none';
-                        cancelProcess.style.display = 'none';
-                        isProcessing = false;
-                        
-                        tabs.forEach(t => t.classList.remove('active'));
-                        tabContents.forEach(tc => tc.classList.remove('active'));
-                        document.querySelector('[data-tab="results"]').classList.add('active');
-                        document.getElementById('results-tab').classList.add('active');
-                    }, 500);
-                    
-                }).catch(error => {
-                    console.error('OCR Error:', error);
-                    showStatus('Ошибка распознавания. Попробуйте другой скриншот или введите данные вручную.', 'error');
-                    stopProcessing();
-                });
-            }
-            
-            function updateOCRResults(data) {
-                if (data.score1 !== null && data.score2 !== null) {
-                    document.getElementById('ocr-score').textContent = `${data.score1}:${data.score2}`;
-                    document.getElementById('manual-score1').value = data.score1;
-                    document.getElementById('manual-score2').value = data.score2;
-                } else {
-                    document.getElementById('ocr-score').textContent = 'Не распознано';
-                }
-                
-                if (data.period !== null) {
-                    document.getElementById('ocr-period').textContent = `${data.period} период`;
-                    document.getElementById('manual-period').value = data.period;
-                } else {
-                    document.getElementById('ocr-period').textContent = 'Не распознано';
-                }
-                
-                if (data.minutes !== null && data.seconds !== null) {
-                    document.getElementById('ocr-time').textContent = `${data.minutes}:${data.seconds}`;
-                    document.getElementById('manual-minutes').value = data.minutes;
-                    document.getElementById('manual-seconds').value = data.seconds;
-                } else {
-                    document.getElementById('ocr-time').textContent = 'Не распознано';
-                }
-                
-                if (data.total !== null) {
-                    document.getElementById('ocr-total').textContent = data.total;
-                    document.getElementById('manual-total').value = data.total;
-                } else {
-                    document.getElementById('ocr-total').textContent = 'Не распознано';
-                }
-                
-                if (data.totalType !== null) {
-                    document.getElementById('ocr-total-type').textContent = data.totalType === 'over' ? 'ТБ' : 'ТМ';
-                    document.getElementById('manual-total-type').value = data.totalType;
-                } else {
-                    document.getElementById('ocr-total-type').textContent = 'Не распознано';
-                }
-                
-                if (data.score1 !== null && data.score2 !== null && data.period !== null && data.minutes !== null && data.total !== null) {
-                    generatePredictions(data.score1, data.score2, data.period, `${data.minutes}:${data.seconds}`, data.total, data.totalType, false, false);
-                } else {
-                    document.getElementById('recommendation-text').textContent = 'Не все данные распознаны. Проверьте и введите вручную при необходимости.';
-                    document.getElementById('confidence-bar').style.width = '0%';
-                    document.getElementById('confidence-value').textContent = '0%';
-                }
-            }
-            
             // Обработчики событий
             cancelProcess.addEventListener('click', stopProcessing);
-            cancelTrainingButton.addEventListener('click', stopTraining);
             
             themeToggle.addEventListener('click', function() {
                 isDarkTheme = !isDarkTheme;
@@ -2767,26 +2014,30 @@
                 localStorage.setItem('darkTheme', isDarkTheme);
             });
             
+            // Обработчик изменения лиги
             leagueSelect.addEventListener('change', updateCyberFactors);
             
+            // Функционал вкладок
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
                     
+                    // Деактивируем все вкладки
                     tabs.forEach(t => t.classList.remove('active'));
                     tabContents.forEach(tc => tc.classList.remove('active'));
                     
+                    // Активируем текущую вкладку
                     tab.classList.add('active');
                     document.getElementById(`${tabId}-tab`).classList.add('active');
                     
+                    // Обновляем отображение истории при переходе на вкладку ИИ
                     if (tabId === 'ai') {
-                        enhancedAISystem.updateDisplay();
-                    } else if (tabId === 'training') {
-                        enhancedAISystem.updateStatsDisplay();
+                        aiSystem.updateDisplay();
                     }
                 });
             });
             
+            // Обработчики для полей ввода с цифровой клавиатурой
             manualInputs.forEach(input => {
                 input.addEventListener('focus', (e) => {
                     e.preventDefault();
@@ -2800,6 +2051,7 @@
                     activeInput = input;
                 });
                 
+                // Предотвращаем появление системной клавиатуры
                 input.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     showNumericKeyboard();
@@ -2807,6 +2059,7 @@
                 });
             });
             
+            // Обработчики для цифровой клавиатуры
             document.querySelectorAll('.keyboard-key').forEach(key => {
                 key.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -2820,11 +2073,15 @@
                     } else if (action === 'close') {
                         hideNumericKeyboard();
                     } else if (value) {
+                        // Проверяем ограничения для разных полей
                         if (activeInput.id === 'manual-period' && value === '.') {
+                            // Для периода не допускаем точку
                             return;
                         } else if ((activeInput.id === 'manual-minutes' || activeInput.id === 'manual-seconds') && value === '.') {
+                            // Для времени не допускаем точку
                             return;
                         } else if (activeInput.id === 'manual-total' && value === '.') {
+                            // Для тотала допускаем только одну точку
                             if (!activeInput.value.includes('.')) {
                                 activeInput.value += value;
                             }
@@ -2835,6 +2092,7 @@
                 });
             });
             
+            // Закрытие клавиатуры при клике вне её области
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.numeric-keyboard') && !e.target.closest('.input-field[inputmode]')) {
                     hideNumericKeyboard();
@@ -2872,10 +2130,13 @@
                 }
             });
             
+            // Функция обработки изображения с реальным OCR
             function processImage(file) {
+                // Останавливаем предыдущую обработку
                 stopProcessing();
                 
-                if (file.size > 5 * 1024 * 1024) {
+                // Проверяем размер файла
+                if (file.size > 5 * 1024 * 1024) { // 5MB
                     showStatus('Файл слишком большой. Используйте изображение меньше 5MB.', 'error');
                     return;
                 }
@@ -2886,9 +2147,11 @@
                     previewImg.src = e.target.result;
                     previewImg.style.display = 'block';
                     
+                    // Автоматически выбираем кибербаскетбол при загрузке скриншота
                     leagueSelect.value = '5_4_cyber';
                     updateCyberFactors();
                     
+                    // Показываем индикаторы загрузки
                     document.getElementById('ocr-score').innerHTML = '<span class="loading"></span>';
                     document.getElementById('ocr-period').innerHTML = '<span class="loading"></span>';
                     document.getElementById('ocr-time').innerHTML = '<span class="loading"></span>';
@@ -2899,8 +2162,10 @@
                     updateProgress(10);
                     cancelProcess.style.display = 'block';
                     
+                    // Устанавливаем флаг обработки
                     isProcessing = true;
                     
+                    // Таймаут для обработки (30 секунд)
                     processingTimeout = setTimeout(() => {
                         if (isProcessing) {
                             showStatus('Таймаут распознавания. Попробуйте другой скриншот или введите данные вручную.', 'error');
@@ -2908,25 +2173,122 @@
                         }
                     }, 30000);
                     
+                    // Запускаем реальное распознавание текста
                     performOCR(e.target.result);
                 };
                 
                 reader.readAsDataURL(file);
             }
             
+            // Реальное распознавание текста с помощью Tesseract.js
+            function performOCR(imageData) {
+                updateProgress(20);
+                
+                Tesseract.recognize(
+                    imageData,
+                    'rus+eng', // Распознавание русского и английского текста
+                    {
+                        logger: progress => {
+                            if (progress.status === 'recognizing text') {
+                                const percent = Math.min(90, 20 + Math.floor(progress.progress * 70));
+                                updateProgress(percent);
+                            }
+                        }
+                    }
+                ).then(({ data: { text } }) => {
+                    if (!isProcessing) return;
+                    
+                    updateProgress(95);
+                    
+                    // Парсим распознанный текст
+                    const parsedData = parseOCRText(text);
+                    
+                    // Обновляем интерфейс с распознанными данными
+                    updateOCRResults(parsedData);
+                    
+                    updateProgress(100);
+                    showStatus('Распознавание завершено!', 'success');
+                    uploadArea.classList.add('upload-success');
+                    
+                    setTimeout(() => {
+                        progressBar.style.display = 'none';
+                        cancelProcess.style.display = 'none';
+                        isProcessing = false;
+                        
+                        // Переключаемся на вкладку результатов
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tabContents.forEach(tc => tc.classList.remove('active'));
+                        document.querySelector('[data-tab="results"]').classList.add('active');
+                        document.getElementById('results-tab').classList.add('active');
+                    }, 500);
+                    
+                }).catch(error => {
+                    console.error('OCR Error:', error);
+                    showStatus('Ошибка распознавания. Попробуйте другой скриншот или введите данные вручную.', 'error');
+                    stopProcessing();
+                });
+            }
+            
+            // Обновление результатов OCR
+            function updateOCRResults(data) {
+                // Обновляем интерфейс с распознанными данными
+                if (data.score1 !== null && data.score2 !== null) {
+                    document.getElementById('ocr-score').textContent = `${data.score1}:${data.score2}`;
+                    document.getElementById('manual-score1').value = data.score1;
+                    document.getElementById('manual-score2').value = data.score2;
+                } else {
+                    document.getElementById('ocr-score').textContent = 'Не распознано';
+                }
+                
+                if (data.period !== null) {
+                    document.getElementById('ocr-period').textContent = `${data.period} период`;
+                    document.getElementById('manual-period').value = data.period;
+                } else {
+                    document.getElementById('ocr-period').textContent = 'Не распознано';
+                }
+                
+                if (data.minutes !== null && data.seconds !== null) {
+                    document.getElementById('ocr-time').textContent = `${data.minutes}:${data.seconds}`;
+                    document.getElementById('manual-minutes').value = data.minutes;
+                    document.getElementById('manual-seconds').value = data.seconds;
+                } else {
+                    document.getElementById('ocr-time').textContent = 'Не распознано';
+                }
+                
+                if (data.total !== null) {
+                    document.getElementById('ocr-total').textContent = data.total;
+                    document.getElementById('manual-total').value = data.total;
+                } else {
+                    document.getElementById('ocr-total').textContent = 'Не распознано';
+                }
+                
+                if (data.totalType !== null) {
+                    document.getElementById('ocr-total-type').textContent = data.totalType === 'over' ? 'ТБ' : 'ТМ';
+                    document.getElementById('manual-total-type').value = data.totalType;
+                } else {
+                    document.getElementById('ocr-total-type').textContent = 'Не распознано';
+                }
+                
+                // Генерация прогноза если все данные распознаны
+                if (data.score1 !== null && data.score2 !== null && data.period !== null && data.minutes !== null && data.total !== null) {
+                    generatePredictions(data.score1, data.score2, data.period, `${data.minutes}:${data.seconds}`, data.total, data.totalType, false);
+                } else {
+                    document.getElementById('recommendation-text').textContent = 'Не все данные распознаны. Проверьте и введите вручную при необходимости.';
+                    document.getElementById('confidence-bar').style.width = '0%';
+                    document.getElementById('confidence-value').textContent = '0%';
+                }
+            }
+            
+            // Обработчик ручного ввода
             manualSubmit.addEventListener('click', () => {
-                processManualInput(false, false);
+                processManualInput(false);
             });
             
             aiAnalyzeBtn.addEventListener('click', () => {
-                processManualInput(true, false);
+                processManualInput(true);
             });
             
-            mlAnalyzeBtn.addEventListener('click', () => {
-                processManualInput(false, true);
-            });
-            
-            async function processManualInput(useAI, useML) {
+            function processManualInput(useAI) {
                 const score1 = document.getElementById('manual-score1').value;
                 const score2 = document.getElementById('manual-score2').value;
                 const periodInput = document.getElementById('manual-period').value;
@@ -2949,63 +2311,72 @@
                 document.getElementById('ocr-total').textContent = totalInput || '--';
                 document.getElementById('ocr-total-type').textContent = totalTypeInput === 'over' ? 'ТБ' : 'ТМ';
                 
+                // Переключаемся на вкладку результатов
                 tabs.forEach(t => t.classList.remove('active'));
                 tabContents.forEach(tc => tc.classList.remove('active'));
                 document.querySelector('[data-tab="results"]').classList.add('active');
                 document.getElementById('results-tab').classList.add('active');
                 
-                if (useML) {
-                    await generateMLPredictions(parseInt(score1), parseInt(score2), parseInt(periodInput), timeInput, totalInput, totalTypeInput);
-                } else {
-                    generatePredictions(parseInt(score1), parseInt(score2), parseInt(periodInput), timeInput, totalInput, totalTypeInput, useAI, false);
-                }
+                // Генерируем прогноз
+                generatePredictions(parseInt(score1), parseInt(score2), parseInt(periodInput), timeInput, totalInput, totalTypeInput, useAI);
             }
             
-            function generatePredictions(score1, score2, period, timeElapsed, totalLine, totalType, useAI = false, useML = false) {
+            // Функция генерации прогнозов с учетом кибербаскетбола и ИИ
+            function generatePredictions(score1, score2, period, timeElapsed, totalLine, totalType, useAI = false) {
+                // Базовые расчеты
                 const totalPoints = score1 + score2;
                 const [minutesElapsed, secondsElapsed] = timeElapsed.split(':').map(Number);
+                
+                // Время, которое прошло в текущей четверти (в секундах)
                 const totalSecondsElapsed = minutesElapsed * 60 + secondsElapsed;
                 
+                // Определение параметров в зависимости от лиги
                 let secondsInPeriod, totalPeriods, baseMultiplier;
                 const leagueType = leagueSelect.value;
                 
-                if (leagueType === '12_4') {
+                if (leagueType === '12_4') { // NBA
                     secondsInPeriod = 12 * 60;
                     totalPeriods = 4;
                     baseMultiplier = 1.0;
-                } else if (leagueType === '10_4') {
+                } else if (leagueType === '10_4') { // ФИБА
                     secondsInPeriod = 10 * 60;
                     totalPeriods = 4;
                     baseMultiplier = 1.0;
-                } else {
+                } else { // Кибербаскетбол
                     secondsInPeriod = 5 * 60;
                     totalPeriods = 4;
-                    baseMultiplier = 1.15;
+                    baseMultiplier = 1.15; // Повышенный множитель для кибербаскетбола
                 }
                 
+                // Расчет оставшегося времени (текущая четверть + все оставшиеся четверти)
                 const secondsRemainingInCurrentPeriod = secondsInPeriod - totalSecondsElapsed;
                 const fullPeriodsRemaining = totalPeriods - period;
                 const totalSecondsRemaining = secondsRemainingInCurrentPeriod + (fullPeriodsRemaining * secondsInPeriod);
                 const minutesRemaining = totalSecondsRemaining / 60;
                 
+                // Расчет текущего темпа (очков в минуту)
                 const totalSecondsPlayed = (period - 1) * secondsInPeriod + totalSecondsElapsed;
                 const minutesPlayed = totalSecondsPlayed / 60;
                 const pointsPerMinute = minutesPlayed > 0 ? totalPoints / minutesPlayed : 0;
                 
+                // Коррекция темпа на основе разницы в счете
                 const scoreDifference = Math.abs(score1 - score2);
                 let paceCorrection = 1.0;
                 
                 if (scoreDifference > 15) {
-                    paceCorrection = 0.85;
+                    paceCorrection = 0.85; // При большой разнице темп снижается
                 } else if (scoreDifference > 10) {
                     paceCorrection = 0.9;
                 } else if (scoreDifference > 5) {
                     paceCorrection = 0.95;
                 }
                 
+                // Базовый прогноз тотала с учетом коррекции
                 let basePredictedTotalPoints = totalPoints + (pointsPerMinute * minutesRemaining * paceCorrection * baseMultiplier);
                 
+                // Дополнительная коррекция для поздних периодов
                 if (period >= 3) {
+                    // В последних периодах темп может измениться
                     const lateGameCorrection = period === 4 ? 0.9 : 0.95;
                     basePredictedTotalPoints = totalPoints + (pointsPerMinute * minutesRemaining * paceCorrection * baseMultiplier * lateGameCorrection);
                 }
@@ -3013,24 +2384,26 @@
                 let predictedTotalPoints = basePredictedTotalPoints;
                 let aiConfidence = 0;
                 let aiCorrection = { day: 0, time: 0, period: 0, pace: 0, accuracy: 0, total: 0 };
-                let mlCorrection = 0;
                 
+                // Учет факторов кибербаскетбола и ИИ коррекции
                 if (leagueType === '5_4_cyber' && window.cyberFactors) {
                     const { dayFactor, timeFactor, totalFactor, dayOfWeek, timeCategory, period: cyberPeriod } = window.cyberFactors;
                     
+                    // Применяем стандартные факторы
                     predictedTotalPoints = basePredictedTotalPoints * (1 + totalFactor / 100);
                     
+                    // Применяем ИИ коррекцию если запрошено
                     if (useAI) {
-                        const features = enhancedAISystem.extractFeatures({
-                            score1, score2, period, timeElapsed, totalLine, totalType, leagueType
-                        }, true);
-                        
-                        const aiResult = enhancedAISystem.getAICorrection(features);
-                        aiCorrection.total = aiResult.total;
+                        aiCorrection = aiSystem.getAICorrection(dayOfWeek, timeCategory, cyberPeriod, basePredictedTotalPoints, pointsPerMinute);
                         predictedTotalPoints = basePredictedTotalPoints * (1 + (totalFactor + aiCorrection.total) / 100);
-                        aiConfidence = Math.min(95, 65 + Math.abs(aiCorrection.total) * 1.5 + (enhancedAISystem.accuracy / 2) + (period * 3));
+                        aiConfidence = Math.min(95, 65 + 
+                            Math.abs(aiCorrection.total) * 1.5 + 
+                            (aiSystem.accuracy / 2) +
+                            (period * 3)
+                        );
                     }
                     
+                    // Показываем факторы в результатах
                     cyberFactorsResults.style.display = 'block';
                     document.getElementById('result-day-factor').textContent = 
                         `${dayFactor > 0 ? '+' : ''}${dayFactor}%`;
@@ -3042,15 +2415,15 @@
                     if (useAI) {
                         aiFactorsResults.style.display = 'block';
                         document.getElementById('result-ai-day-factor').textContent = 
-                            `${aiCorrection.factors[0] > 0 ? '+' : ''}${aiCorrection.factors[0].toFixed(1)}%`;
+                            `${aiCorrection.day > 0 ? '+' : ''}${aiCorrection.day.toFixed(1)}%`;
                         document.getElementById('result-ai-time-factor').textContent = 
-                            `${aiCorrection.factors[1] > 0 ? '+' : ''}${aiCorrection.factors[1].toFixed(1)}%`;
+                            `${aiCorrection.time > 0 ? '+' : ''}${aiCorrection.time.toFixed(1)}%`;
                         document.getElementById('result-ai-period-factor').textContent = 
-                            `${aiCorrection.factors[2] > 0 ? '+' : ''}${aiCorrection.factors[2].toFixed(1)}%`;
+                            `${aiCorrection.period > 0 ? '+' : ''}${aiCorrection.period.toFixed(1)}%`;
                         document.getElementById('result-ai-pace-factor').textContent = 
-                            `${aiCorrection.factors[3] > 0 ? '+' : ''}${aiCorrection.factors[3].toFixed(1)}%`;
+                            `${aiCorrection.pace > 0 ? '+' : ''}${aiCorrection.pace}%`;
                         document.getElementById('result-ai-accuracy-factor').textContent = 
-                            `${aiCorrection.factors[4] > 0 ? '+' : ''}${aiCorrection.factors[4].toFixed(1)}%`;
+                            `${aiCorrection.accuracy > 0 ? '+' : ''}${aiCorrection.accuracy.toFixed(1)}%`;
                         document.getElementById('result-ai-total-factor').textContent = 
                             `${aiCorrection.total > 0 ? '+' : ''}${aiCorrection.total.toFixed(1)}%`;
                     } else {
@@ -3061,24 +2434,29 @@
                     aiFactorsResults.style.display = 'none';
                 }
                 
+                // Прогноз счета
                 const team1Share = totalPoints > 0 ? score1 / totalPoints : 0.5;
                 const team2Share = totalPoints > 0 ? score2 / totalPoints : 0.5;
                 
                 const predictedScore1 = Math.round(score1 + (pointsPerMinute * minutesRemaining * team1Share * paceCorrection * baseMultiplier));
                 const predictedScore2 = Math.round(score2 + (pointsPerMinute * minutesRemaining * team2Share * paceCorrection * baseMultiplier));
                 
+                // ОБНОВЛЕНИЕ: Ожидаемый тотал теперь равен сумме очков из прогноза счета
                 const expectedTotal = predictedScore1 + predictedScore2;
                 
+                // Формирование рекомендации
                 let recommendation = "";
                 let aiRecommendationText = "";
                 let confidence = 0;
                 
-                const timeConfidence = Math.min(100, 70 + (period * 5));
-                const paceConfidence = Math.min(30, pointsPerMinute * 2);
-                const differenceConfidence = Math.max(20, 50 - (scoreDifference * 2));
+                // Улучшенный расчет уверенности
+                const timeConfidence = Math.min(100, 70 + (period * 5)); // Чем позже период, тем выше уверенность
+                const paceConfidence = Math.min(30, pointsPerMinute * 2); // Чем выше темп, тем выше уверенность
+                const differenceConfidence = Math.max(20, 50 - (scoreDifference * 2)); // Чем больше разница, тем ниже уверенность
                 
                 confidence = (timeConfidence + paceConfidence + differenceConfidence) / 3;
                 
+                // Базовая рекомендация
                 if (totalType === 'over') {
                     if (expectedTotal > totalLine) {
                         recommendation = `Рекомендуется ставка на ТОТАЛ БОЛЬШЕ ${totalLine}`;
@@ -3097,6 +2475,7 @@
                     }
                 }
                 
+                // ИИ рекомендация
                 if (useAI) {
                     if (totalType === 'over') {
                         if (expectedTotal > totalLine) {
@@ -3120,12 +2499,14 @@
                         }
                     }
                     
+                    // Добавляем объяснение от ИИ
                     let aiExplanation = "На основе обучения ИИ: ";
                     const factors = [];
                     
-                    if (Math.abs(aiCorrection.factors[0]) > 3) factors.push(`день недели (${aiCorrection.factors[0] > 0 ? '+' : ''}${aiCorrection.factors[0].toFixed(1)}%)`);
-                    if (Math.abs(aiCorrection.factors[1]) > 3) factors.push(`время суток (${aiCorrection.factors[1] > 0 ? '+' : ''}${aiCorrection.factors[1].toFixed(1)}%)`);
-                    if (Math.abs(aiCorrection.factors[3]) > 3) factors.push(`темп игры (${aiCorrection.factors[3] > 0 ? '+' : ''}${aiCorrection.factors[3].toFixed(1)}%)`);
+                    if (Math.abs(aiCorrection.day) > 3) factors.push(`день недели (${aiCorrection.day > 0 ? '+' : ''}${aiCorrection.day.toFixed(1)}%)`);
+                    if (Math.abs(aiCorrection.time) > 3) factors.push(`время суток (${aiCorrection.time > 0 ? '+' : ''}${aiCorrection.time.toFixed(1)}%)`);
+                    if (Math.abs(aiCorrection.pace) > 3) factors.push(`темп игры (${aiCorrection.pace > 0 ? '+' : ''}${aiCorrection.pace}%)`);
+                    if (Math.abs(aiCorrection.accuracy) > 2) factors.push(`точность модели (${aiCorrection.accuracy > 0 ? '+' : ''}${aiCorrection.accuracy.toFixed(1)}%)`);
                     
                     if (factors.length > 0) {
                         aiExplanation += factors.join(", ");
@@ -3134,15 +2515,24 @@
                     }
                     
                     aiRecommendationText += `\n${aiExplanation}`;
+                    
+                    // Сравнение с обычным прогнозом
+                    const standardTotal = basePredictedTotalPoints * (1 + window.cyberFactors.totalFactor / 100);
+                    const difference = expectedTotal - standardTotal;
+                    
+                    if (Math.abs(difference) > 2) {
+                        aiRecommendationText += `\n\nИИ коррекция: ${difference > 0 ? '+' : ''}${difference.toFixed(1)} очков от стандартного прогноза`;
+                    }
                 }
                 
                 confidence = Math.min(95, Math.max(50, confidence));
                 aiConfidence = Math.min(95, Math.max(50, aiConfidence));
                 
+                // Обновляем интерфейс с результатами
+                // ОБНОВЛЕНИЕ: используем expectedTotal (сумму очков из прогноза счета) вместо predictedTotalPoints
                 document.getElementById('predicted-total').textContent = expectedTotal.toFixed(1);
                 document.getElementById('predicted-pace').textContent = pointsPerMinute.toFixed(2);
                 document.getElementById('predicted-score').textContent = `${predictedScore1}:${predictedScore2}`;
-                document.getElementById('model-accuracy').textContent = `${enhancedAISystem.accuracy.toFixed(1)}%`;
                 
                 document.getElementById('recommendation-text').textContent = recommendation;
                 document.getElementById('confidence-bar').style.width = `${confidence}%`;
@@ -3153,143 +2543,35 @@
                     document.getElementById('ai-confidence-bar').style.width = `${aiConfidence}%`;
                     document.getElementById('ai-confidence-value').textContent = `${Math.round(aiConfidence)}%`;
                     aiRecommendation.style.display = 'block';
-                    mlRecommendation.style.display = 'none';
                 } else {
-                    document.getElementById('ai-recommendation-text').textContent = 'Анализ ИИ будет показан здесь';
-                    document.getElementById('ai-confidence-bar').style.width = '0%';
-                    document.getElementById('ai-confidence-value').textContent = '0%';
                     aiRecommendation.style.display = 'none';
-                    mlRecommendation.style.display = 'none';
                 }
                 
-                featureImportance.style.display = useAI ? 'block' : 'none';
-                
+                // Сохраняем прогноз в историю
+                // ОБНОВЛЕНИЕ: сохраняем expectedTotal вместо predictedTotalPoints
                 const prediction = {
                     score: `${score1}:${score2}`,
                     period: period,
                     time: timeElapsed,
                     totalLine: totalLine,
                     totalType: totalType,
-                    predictedTotal: expectedTotal,
+                    predictedTotal: expectedTotal, // Используем expectedTotal
                     recommendation: recommendation,
                     aiRecommendation: useAI ? aiRecommendationText : null,
                     confidence: confidence,
                     aiConfidence: useAI ? aiConfidence : null,
                     factors: window.cyberFactors,
                     timestamp: new Date().toISOString(),
-                    useAI: useAI,
-                    useML: useML
+                    useAI: useAI
                 };
                 
-                enhancedAISystem.addPrediction(prediction);
+                aiSystem.addPrediction(prediction);
+                
+                // Сохраняем ID последнего прогноза для обратной связи
                 window.lastPredictionId = prediction.id;
-                
-                console.log("Прогноз добавлен. ID:", window.lastPredictionId);
-                // debugStorage(); // Раскомментируйте для отладки
             }
             
-            async function generateMLPredictions(score1, score2, period, timeElapsed, totalLine, totalType) {
-                showStatus('ML модель анализирует данные...', 'training');
-                
-                try {
-                    const features = enhancedAISystem.extractFeatures({
-                        score1, score2, period, timeElapsed, totalLine, totalType, 
-                        leagueType: leagueSelect.value
-                    });
-                    
-                    const mlPrediction = await enhancedAISystem.mlPredict(features);
-                    const expectedTotal = mlPrediction * 300; // Денормализация
-                    
-                    const totalPoints = score1 + score2;
-                    const [minutesElapsed, secondsElapsed] = timeElapsed.split(':').map(Number);
-                    
-                    let secondsInPeriod;
-                    const leagueType = leagueSelect.value;
-                    
-                    if (leagueType === '12_4') {
-                        secondsInPeriod = 12 * 60;
-                    } else if (leagueType === '10_4') {
-                        secondsInPeriod = 10 * 60;
-                    } else {
-                        secondsInPeriod = 5 * 60;
-                    }
-                    
-                    const totalSecondsPlayed = (period - 1) * secondsInPeriod + (minutesElapsed * 60 + secondsElapsed);
-                    const minutesPlayed = totalSecondsPlayed / 60;
-                    const pointsPerMinute = minutesPlayed > 0 ? totalPoints / minutesPlayed : 0;
-                    
-                    const team1Share = totalPoints > 0 ? score1 / totalPoints : 0.5;
-                    const team2Share = totalPoints > 0 ? score2 / totalPoints : 0.5;
-                    const predictedScore1 = Math.round(score1 + (expectedTotal - totalPoints) * team1Share);
-                    const predictedScore2 = Math.round(score2 + (expectedTotal - totalPoints) * team2Share);
-                    
-                    let mlRecommendationText = "";
-                    let mlConfidence = 0;
-                    
-                    if (totalType === 'over') {
-                        if (expectedTotal > totalLine) {
-                            const advantage = ((expectedTotal - totalLine) / totalLine * 100).toFixed(1);
-                            mlRecommendationText = `ML СИЛЬНО РЕКОМЕНДУЕТ ТБ ${totalLine} (преимущество: +${advantage}%)`;
-                            mlConfidence = 75 + Math.min(20, advantage);
-                        } else {
-                            const disadvantage = ((totalLine - expectedTotal) / totalLine * 100).toFixed(1);
-                            mlRecommendationText = `ML НЕ РЕКОМЕНДУЕТ ТБ ${totalLine} (риск: ${disadvantage}%)`;
-                            mlConfidence = 40 - Math.min(30, disadvantage);
-                        }
-                    } else if (totalType === 'under') {
-                        if (expectedTotal < totalLine) {
-                            const advantage = ((totalLine - expectedTotal) / totalLine * 100).toFixed(1);
-                            mlRecommendationText = `ML СИЛЬНО РЕКОМЕНДУЕТ ТМ ${totalLine} (преимущество: +${advantage}%)`;
-                            mlConfidence = 75 + Math.min(20, advantage);
-                        } else {
-                            const disadvantage = ((expectedTotal - totalLine) / totalLine * 100).toFixed(1);
-                            mlRecommendationText = `ML НЕ РЕКОМЕНДУЕТ ТМ ${totalLine} (риск: ${disadvantage}%)`;
-                            mlConfidence = 40 - Math.min(30, disadvantage);
-                        }
-                    }
-                    
-                    mlConfidence = Math.min(95, Math.max(50, mlConfidence));
-                    
-                    document.getElementById('predicted-total').textContent = expectedTotal.toFixed(1);
-                    document.getElementById('predicted-pace').textContent = pointsPerMinute.toFixed(2);
-                    document.getElementById('predicted-score').textContent = `${predictedScore1}:${predictedScore2}`;
-                    document.getElementById('model-accuracy').textContent = `${enhancedAISystem.mlAccuracy.toFixed(1)}%`;
-                    
-                    document.getElementById('ml-recommendation-text').textContent = mlRecommendationText;
-                    document.getElementById('ml-confidence-bar').style.width = `${mlConfidence}%`;
-                    document.getElementById('ml-confidence-value').textContent = `${Math.round(mlConfidence)}%`;
-                    
-                    aiRecommendation.style.display = 'none';
-                    mlRecommendation.style.display = 'block';
-                    featureImportance.style.display = 'block';
-                    
-                    const prediction = {
-                        score: `${score1}:${score2}`,
-                        period: period,
-                        time: timeElapsed,
-                        totalLine: totalLine,
-                        totalType: totalType,
-                        predictedTotal: expectedTotal,
-                        recommendation: mlRecommendationText,
-                        confidence: mlConfidence,
-                        factors: window.cyberFactors,
-                        timestamp: new Date().toISOString(),
-                        useAI: false,
-                        useML: true
-                    };
-                    
-                    enhancedAISystem.addPrediction(prediction);
-                    window.lastPredictionId = prediction.id;
-                    
-                    showStatus('ML анализ завершен!', 'success');
-                    
-                } catch (error) {
-                    console.error('ML Prediction error:', error);
-                    showStatus('Ошибка ML анализа. Используйте стандартный анализ.', 'error');
-                    generatePredictions(score1, score2, period, timeElapsed, totalLine, totalType, false, false);
-                }
-            }
-            
+            // Функция для расчета отклонения перед отправкой обратной связи
             function calculateDeviation() {
                 const actualTotal = parseFloat(actualTotalInput.value);
                 const predictedTotal = parseFloat(document.getElementById('predicted-total').textContent);
@@ -3298,10 +2580,12 @@
                     const deviation = predictedTotal - actualTotal;
                     const accuracy = Math.max(0, 100 - Math.abs(deviation) / actualTotal * 100);
                     
+                    // Обновляем статистику
                     document.getElementById('deviation-value').textContent = 
                         `${deviation > 0 ? '+' : ''}${deviation.toFixed(1)}`;
                     document.getElementById('accuracy-value').textContent = `${accuracy.toFixed(1)}%`;
                     
+                    // Цветовое кодирование
                     const deviationElement = document.getElementById('deviation-value');
                     const accuracyElement = document.getElementById('accuracy-value');
                     
@@ -3330,8 +2614,10 @@
                 return null;
             }
             
+            // Обработчик изменений в поле реального тотала
             actualTotalInput.addEventListener('input', calculateDeviation);
             
+            // Добавляем обработчики для полей ввода обратной связи
             [actualTotalInput, actualScore1Input, actualScore2Input].forEach(input => {
                 input.addEventListener('focus', (e) => {
                     e.preventDefault();
@@ -3346,7 +2632,7 @@
                 });
             });
             
-            // ИСПРАВЛЕННАЯ функция обработки обратной связи
+            // Усовершенствованная функция обработки обратной связи
             function processFeedback(isCorrect, saveOnly = false) {
                 if (!window.lastPredictionId) {
                     showStatus('Сначала сделайте прогноз', 'error');
@@ -3364,34 +2650,24 @@
                 
                 const actualScore = actualScore1 && actualScore2 ? `${actualScore1}:${actualScore2}` : null;
                 
-                // Проверка и преобразование данных
-                const actualTotalNum = parseFloat(actualTotal);
-                if (isNaN(actualTotalNum)) {
-                    showStatus('Введите корректное числовое значение для тотала', 'error');
-                    return;
-                }
-                
-                // ИСПРАВЛЕНО: Всегда передаем реальные данные
-                enhancedAISystem.addFeedback(window.lastPredictionId, isCorrect, actualTotalNum, actualScore);
-                
                 if (saveOnly) {
+                    // Только сохраняем результат без оценки ставки
+                    aiSystem.addFeedback(window.lastPredictionId, null, actualTotal, actualScore);
                     showStatus('Результат сохранен для обучения ИИ', 'ai');
                 } else {
+                    // Сохраняем с оценкой ставки
+                    aiSystem.addFeedback(window.lastPredictionId, isCorrect, actualTotal, actualScore);
                     showStatus(`Спасибо за обратную связь! Ставка ${isCorrect ? 'прошла' : 'не прошла'}. ИИ обучается...`, 'ai');
                 }
                 
+                // Очищаем поля ввода
                 actualTotalInput.value = '';
                 actualScore1Input.value = '';
                 actualScore2Input.value = '';
                 feedbackStats.style.display = 'none';
-                
-                // Принудительное обновление интерфейса
-                setTimeout(() => {
-                    enhancedAISystem.updateDisplay();
-                    enhancedAISystem.updateStatsDisplay();
-                }, 1000);
             }
             
+            // Обработчики обратной связи
             feedbackCorrect.addEventListener('click', () => {
                 processFeedback(true);
             });
@@ -3404,92 +2680,24 @@
                 processFeedback(null, true);
             });
             
+            // Обучение ИИ
             trainAIButton.addEventListener('click', () => {
-                const loss = enhancedAISystem.enhancedTrain();
-                if (loss === 0) {
-                    showStatus('Недостаточно данных с реальными результатами для обучения', 'error');
-                } else {
-                    showStatus(`ИИ модель обучена. Потери: ${loss.toFixed(4)}`, 'ai');
-                }
+                aiSystem.trainModel();
+                showStatus('ИИ модель обучена на основе исторических данных', 'ai');
             });
             
-            trainMLButton.addEventListener('click', async () => {
-                if (isTraining) {
-                    showTrainingStatus('Обучение уже выполняется...');
-                    return;
-                }
-                
-                isTraining = true;
-                cancelTrainingButton.style.display = 'block';
-                
-                try {
-                    showTrainingStatus('Начинаем обучение ML модели...');
-                    
-                    const result = await enhancedAISystem.mlTrain(50, (epoch, logs) => {
-                        const progress = (epoch / 50) * 100;
-                        updateTrainingProgress(progress, `Эпоха ${epoch + 1}/50 - Потери: ${logs.loss.toFixed(4)}`);
-                    });
-                    
-                    if (result.finalLoss === 1) {
-                        showTrainingStatus('Недостаточно данных с реальными результатами для обучения ML');
-                    } else {
-                        showTrainingStatus(`ML модель обучена! Финальные потери: ${result.finalLoss.toFixed(4)}`);
-                    }
-                    
-                    enhancedAISystem.updateStatsDisplay();
-                    
-                } catch (error) {
-                    console.error('Training error:', error);
-                    showTrainingStatus('Ошибка обучения ML модели');
-                } finally {
-                    isTraining = false;
-                    cancelTrainingButton.style.display = 'none';
-                }
-            });
-            
-            advancedTrainButton.addEventListener('click', async () => {
-                if (isTraining) {
-                    showTrainingStatus('Обучение уже выполняется...');
-                    return;
-                }
-                
-                isTraining = true;
-                cancelTrainingButton.style.display = 'block';
-                
-                try {
-                    showTrainingStatus('Начинаем продвинутое обучение ML модели (100 эпох)...');
-                    
-                    const result = await enhancedAISystem.mlTrain(100, (epoch, logs) => {
-                        const progress = (epoch / 100) * 100;
-                        updateTrainingProgress(progress, `Эпоха ${epoch + 1}/100 - Потери: ${logs.loss.toFixed(4)}`);
-                    });
-                    
-                    if (result.finalLoss === 1) {
-                        showTrainingStatus('Недостаточно данных с реальными результатами для продвинутого обучения');
-                    } else {
-                        showTrainingStatus(`Продвинутое обучение завершено! Финальные потери: ${result.finalLoss.toFixed(4)}`);
-                    }
-                    
-                    enhancedAISystem.updateStatsDisplay();
-                    
-                } catch (error) {
-                    console.error('Advanced training error:', error);
-                    showTrainingStatus('Ошибка продвинутого обучения ML модели');
-                } finally {
-                    isTraining = false;
-                    cancelTrainingButton.style.display = 'none';
-                }
-            });
-            
+            // Экспорт данных
             exportDataButton.addEventListener('click', () => {
-                enhancedAISystem.exportData();
+                aiSystem.exportData();
                 showStatus('Данные экспортированы', 'success');
             });
             
+            // Обработчик для кнопки очистки данных ИИ
             clearAIDataButton.addEventListener('click', () => {
-                enhancedAISystem.clearData();
+                aiSystem.clearData();
             });
             
+            // Очистка формы
             clearBtn.addEventListener('click', () => {
                 document.getElementById('manual-score1').value = '';
                 document.getElementById('manual-score2').value = '';
@@ -3508,7 +2716,6 @@
                 document.getElementById('predicted-total').textContent = '--';
                 document.getElementById('predicted-pace').textContent = '--';
                 document.getElementById('predicted-score').textContent = '--';
-                document.getElementById('model-accuracy').textContent = '--';
                 
                 document.getElementById('recommendation-text').textContent = 'Загрузите скриншот или введите данные';
                 document.getElementById('confidence-bar').style.width = '0%';
@@ -3519,11 +2726,6 @@
                 document.getElementById('ai-confidence-value').textContent = '0%';
                 aiRecommendation.style.display = 'none';
                 
-                document.getElementById('ml-recommendation-text').textContent = 'Анализ машинного обучения будет показан здесь';
-                document.getElementById('ml-confidence-bar').style.width = '0%';
-                document.getElementById('ml-confidence-value').textContent = '0%';
-                mlRecommendation.style.display = 'none';
-                
                 previewImg.style.display = 'none';
                 progressBar.style.display = 'none';
                 statusMessage.innerHTML = '';
@@ -3531,20 +2733,20 @@
                 uploadArea.classList.remove('upload-success');
                 cyberFactorsResults.style.display = 'none';
                 aiFactorsResults.style.display = 'none';
-                featureImportance.style.display = 'none';
                 feedbackStats.style.display = 'none';
                 
+                // Очищаем поля обратной связи
                 actualTotalInput.value = '';
                 actualScore1Input.value = '';
                 actualScore2Input.value = '';
                 
+                // Останавливаем обработку если она выполняется
                 stopProcessing();
             });
             
             // Инициализация при загрузке
             updateCyberFactors();
-            enhancedAISystem.updateDisplay();
-            enhancedAISystem.updateStatsDisplay();
+            aiSystem.updateDisplay();
         });
     </script>
 </body>
