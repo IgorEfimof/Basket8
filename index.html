@@ -11,6 +11,7 @@
     <title>Анализатор ставок PRO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Все предыдущие стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -126,7 +127,7 @@
             gap: 10px;
         }
         
-        .theme-toggle, .info-btn, .bookmaker-toggle {
+        .theme-toggle, .info-btn, .bookmaker-toggle, .instructions-btn {
             background: rgba(255, 255, 255, 0.2);
             border: none;
             border-radius: 50%;
@@ -141,7 +142,7 @@
             font-size: 1.2rem;
         }
         
-        .theme-toggle:hover, .info-btn:hover, .bookmaker-toggle:hover {
+        .theme-toggle:hover, .info-btn:hover, .bookmaker-toggle:hover, .instructions-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: rotate(30deg);
         }
@@ -1394,12 +1395,114 @@
             font-size: 0.7rem;
             font-weight: bold;
         }
+
+        /* Новые стили для инструкции по расчетам */
+        .formula-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .formula-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .formula {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .formula-explanation {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .formula-variables {
+            margin-top: 15px;
+        }
+        
+        .variable-item {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .variable-name {
+            font-weight: 600;
+            min-width: 120px;
+            color: var(--primary);
+        }
+        
+        .variable-desc {
+            flex: 1;
+        }
+        
+        .calculation-example {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(243, 156, 18, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .example-title {
+            font-weight: 700;
+            color: #f39c12;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .example-step {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+        
+        .example-step:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .example-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        .example-value {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        
+        .example-result {
+            font-weight: 700;
+            color: var(--success);
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="header-controls">
+                <button class="instructions-btn" id="instructions-btn">
+                    <i class="fas fa-book"></i>
+                </button>
                 <button class="info-btn" id="info-btn">
                     <i class="fas fa-info"></i>
                 </button>
@@ -1901,6 +2004,236 @@
         </div>
     </div>
 
+    <!-- Модальное окно инструкции по расчетам -->
+    <div class="modal-overlay" id="calculations-instruction-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="calculations-modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title">📊 Детали расчетов Анализатора ставок</h2>
+            
+            <div class="instruction-section">
+                <h3 class="instruction-title"><i class="fas fa-calculator"></i> Формула прогнозируемого тотала</h3>
+                <p class="instruction-text">Анализатор использует математическую модель для прогнозирования итогового тотала матча на основе текущей статистики.</p>
+                
+                <div class="formula-section">
+                    <div class="formula-title">Основная формула расчета:</div>
+                    <div class="formula">
+                        Прогнозируемый тотал = Текущий тотал + (Текущий темп × Оставшееся время × Множитель лиги)
+                    </div>
+                    
+                    <div class="formula-explanation">
+                        Эта формула позволяет экстраполировать текущий темп игры на оставшееся время матча.
+                    </div>
+                    
+                    <div class="formula-variables">
+                        <div class="variable-item">
+                            <div class="variable-name">Текущий тотал:</div>
+                            <div class="variable-desc">Сумма очков обеих команд на момент анализа (score1 + score2)</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Текущий темп:</div>
+                            <div class="variable-desc">Текущий тотал / Прошедшее время (в минутах)</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Оставшееся время:</div>
+                            <div class="variable-desc">Оставшееся в текущей четверти + Полные оставшиеся четверти (в минутах)</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Множитель лиги:</div>
+                            <div class="variable-desc">Коэффициент для разных лиг (NBA: 1.0, ФИБА: 1.0, Кибер: 1.15)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instruction-section">
+                <h3 class="instruction-title"><i class="fas fa-clock"></i> Расчет времени</h3>
+                <p class="instruction-text">Точный расчет времени играет ключевую роль в прогнозировании тотала.</p>
+                
+                <div class="formula-section">
+                    <div class="formula-title">Формулы расчета времени:</div>
+                    
+                    <div class="formula">
+                        Прошедшее время = (Период - 1) × Минут в периоде + Прошедшее в текущем периоде
+                    </div>
+                    
+                    <div class="formula">
+                        Оставшееся время = Оставшееся в текущем периоде + (Всего периодов - Текущий период) × Минут в периоде
+                    </div>
+                    
+                    <div class="formula-variables">
+                        <div class="variable-item">
+                            <div class="variable-name">Минут в периоде:</div>
+                            <div class="variable-desc">NBA: 12 мин, ФИБА: 10 мин, Кибер: 5 мин</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Всего периодов:</div>
+                            <div class="variable-desc">Для всех лиг: 4 периода (четверти)</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Прошедшее в текущем периоде:</div>
+                            <div class="variable-desc">Минуты + (Секунды / 60)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instruction-section">
+                <h3 class="instruction-title"><i class="fas fa-chart-bar"></i> Расчет отклонения и уверенности</h3>
+                <p class="instruction-text">На основе отклонения прогнозируемого тотала от линии букмекера определяется уверенность в рекомендации.</p>
+                
+                <div class="formula-section">
+                    <div class="formula-title">Формула отклонения:</div>
+                    <div class="formula">
+                        Отклонение = Прогнозируемый тотал - Тотал букмекера
+                    </div>
+                    
+                    <div class="formula-title">Расчет уверенности:</div>
+                    <div class="formula-explanation">
+                        Уверенность рассчитывается на основе отклонения и выбранного типа ставки (ТБ/ТМ):
+                    </div>
+                    
+                    <div class="formula-variables">
+                        <div class="variable-item">
+                            <div class="variable-name">Для ТБ (Тотал больше):</div>
+                            <div class="variable-desc">
+                                • Отклонение > 5 очков: Высокая уверенность (15-25%)<br>
+                                • Отклонение 1-5 очков: Средняя уверенность (5-15%)<br>
+                                • Отклонение < 0 очков: Низкая уверенность (0-5%)
+                            </div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Для ТМ (Тотал меньше):</div>
+                            <div class="variable-desc">
+                                • Отклонение < -5 очков: Высокая уверенность (15-25%)<br>
+                                • Отклонение -1 до -5 очков: Средняя уверенность (5-15%)<br>
+                                • Отклонение > 0 очков: Низкая уверенность (0-5%)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="formula-explanation">
+                        <strong>Порог значительного отклонения:</strong> 5 очков. Отклонение более 5 очков дает высокую уверенность в рекомендации.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instruction-section">
+                <h3 class="instruction-title"><i class="fas fa-brain"></i> ML-корректировка</h3>
+                <p class="instruction-text">Машинное обучение улучшает точность прогнозов на основе истории ваших расчетов.</p>
+                
+                <div class="formula-section">
+                    <div class="formula-title">Формула ML-корректировки:</div>
+                    <div class="formula">
+                        Скорректированная уверенность = Базовая уверенность + (Точность ML × 15%)
+                    </div>
+                    
+                    <div class="formula-explanation">
+                        ML-модель анализирует вашу историю ставок и корректирует уверенность на основе:
+                    </div>
+                    
+                    <div class="formula-variables">
+                        <div class="variable-item">
+                            <div class="variable-name">Точность ML:</div>
+                            <div class="variable-desc">Процент правильных рекомендаций в вашей истории</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Корректировка по лиге:</div>
+                            <div class="variable-desc">Учитывается успешность прогнозов в разных лигах</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Недавняя производительность:</div>
+                            <div class="variable-desc">Учитываются последние 5 расчетов</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instruction-section">
+                <h3 class="instruction-title"><i class="fas fa-list-alt"></i> Пример расчета</h3>
+                <p class="instruction-text">Рассмотрим подробный пример расчета прогнозируемого тотала.</p>
+                
+                <div class="calculation-example">
+                    <div class="example-title">Пример: Матч NBA</div>
+                    
+                    <div class="example-step">
+                        <div class="example-label">Исходные данные:</div>
+                        <div class="example-value">Счет: 50:45 (Текущий тотал = 95 очков)</div>
+                        <div class="example-value">Период: 2-я четверть</div>
+                        <div class="example-value">Время в четверти: 5:30 (5.5 минут)</div>
+                        <div class="example-value">Лига: NBA (4×12 минут)</div>
+                        <div class="example-value">Тотал букмекера: 210.5</div>
+                        <div class="example-value">Тип ставки: ТБ (Тотал больше)</div>
+                    </div>
+                    
+                    <div class="example-step">
+                        <div class="example-label">Расчет прошедшего времени:</div>
+                        <div class="example-value">Прошедшее время = (2 - 1) × 12 + 5.5 = 17.5 минут</div>
+                    </div>
+                    
+                    <div class="example-step">
+                        <div class="example-label">Расчет текущего темпа:</div>
+                        <div class="example-value">Текущий темп = 95 / 17.5 = 5.43 очка/минуту</div>
+                    </div>
+                    
+                    <div class="example-step">
+                        <div class="example-label">Расчет оставшегося времени:</div>
+                        <div class="example-value">Оставшееся время = (12 - 5.5) + (4 - 2) × 12 = 6.5 + 24 = 30.5 минут</div>
+                    </div>
+                    
+                    <div class="example-step">
+                        <div class="example-label">Расчет прогнозируемого тотала:</div>
+                        <div class="example-value">Прогнозируемый тотал = 95 + (5.43 × 30.5 × 1.0) = 95 + 165.615 = 260.615</div>
+                    </div>
+                    
+                    <div class="example-step">
+                        <div class="example-label">Расчет отклонения:</div>
+                        <div class="example-value">Отклонение = 260.615 - 210.5 = +50.115 очков</div>
+                    </div>
+                    
+                    <div class="example-step">
+                        <div class="example-label">Рекомендация:</div>
+                        <div class="example-value">При ставке на ТБ и отклонении >5 очков</div>
+                        <div class="example-result">РЕКОМЕНДАЦИЯ: СТРОНГ ТБ с высокой уверенностью</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instruction-section">
+                <h3 class="instruction-title"><i class="fas fa-graduation-cap"></i> Обучение ML-модели</h3>
+                <p class="instruction-text">После ввода реальных результатов матча ML-модель обучается на ваших данных.</p>
+                
+                <div class="formula-section">
+                    <div class="formula-title">Процесс обучения ML:</div>
+                    
+                    <div class="formula-variables">
+                        <div class="variable-item">
+                            <div class="variable-name">Сбор данных:</div>
+                            <div class="variable-desc">Сохраняются прогнозы и реальные результаты</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Расчет точности:</div>
+                            <div class="variable-desc">Точность = Правильные прогнозы / Всего прогнозов</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Корректировка модели:</div>
+                            <div class="variable-desc">Модель адаптируется под ваши успешные стратегии</div>
+                        </div>
+                        <div class="variable-item">
+                            <div class="variable-name">Учет лиг:</div>
+                            <div class="variable-desc">Отдельно анализируется точность в разных лигах</div>
+                        </div>
+                    </div>
+                    
+                    <div class="formula-explanation">
+                        <strong>Минимальные требования для обучения:</strong> 3 расчета с реальными результатами.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Элементы DOM
@@ -1909,8 +2242,11 @@
             const bookmakerToggle = document.getElementById('bookmaker-toggle');
             const bookmakerIcon = bookmakerToggle.querySelector('i');
             const infoBtn = document.getElementById('info-btn');
+            const instructionsBtn = document.getElementById('instructions-btn');
             const instructionModal = document.getElementById('instruction-modal');
+            const calculationsInstructionModal = document.getElementById('calculations-instruction-modal');
             const modalClose = document.getElementById('modal-close');
+            const calculationsModalClose = document.getElementById('calculations-modal-close');
             
             const score1Input = document.getElementById('score1');
             const score2Input = document.getElementById('score2');
@@ -2094,12 +2430,19 @@
                 themeToggle.addEventListener('click', toggleTheme);
                 bookmakerToggle.addEventListener('click', toggleBookmakerTheme);
                 
-                // Модальное окно инструкции
+                // Модальные окна инструкций
                 infoBtn.addEventListener('click', openInstructionModal);
+                instructionsBtn.addEventListener('click', openCalculationsInstructionModal);
                 modalClose.addEventListener('click', closeInstructionModal);
+                calculationsModalClose.addEventListener('click', closeCalculationsInstructionModal);
                 instructionModal.addEventListener('click', function(e) {
                     if (e.target === instructionModal) {
                         closeInstructionModal();
+                    }
+                });
+                calculationsInstructionModal.addEventListener('click', function(e) {
+                    if (e.target === calculationsInstructionModal) {
+                        closeCalculationsInstructionModal();
                     }
                 });
                 
@@ -2370,6 +2713,16 @@
             
             function closeInstructionModal() {
                 instructionModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+            
+            function openCalculationsInstructionModal() {
+                calculationsInstructionModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeCalculationsInstructionModal() {
+                calculationsInstructionModal.classList.remove('active');
                 document.body.style.overflow = 'auto';
             }
             
