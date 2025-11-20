@@ -11,7 +11,7 @@
     <title>Анализатор ставок PRO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Все предыдущие стили остаются без изменений */
+        /* Все стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -927,10 +927,15 @@
             cursor: pointer;
             font-weight: 600;
             transition: background 0.3s;
+            white-space: nowrap;
         }
         
         .save-real-score-btn:hover {
             background: #2980b9;
+        }
+        
+        .save-real-score-btn:active {
+            transform: scale(0.98);
         }
         
         .ml-feedback-section {
@@ -1241,6 +1246,15 @@
             .history-result-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .real-score-inputs {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .save-real-score-btn {
+                width: 100%;
+            }
         }
         
         /* Для цифровой клавиатуры на iOS */
@@ -1494,6 +1508,92 @@
             color: var(--success);
             margin-top: 5px;
         }
+        
+        /* Новые стили для улучшенного отображения реального счета */
+        .real-score-saved {
+            background: rgba(39, 174, 96, 0.1) !important;
+            border-left: 4px solid var(--success) !important;
+        }
+        
+        .real-score-success {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px;
+            background: var(--success);
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 600;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .real-score-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .real-score-edit-btn {
+            background: var(--warning);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .real-score-edit-btn:hover {
+            background: #e67e22;
+        }
+        
+        .real-score-clear-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .real-score-clear-btn:hover {
+            background: #c0392b;
+        }
+        
+        /* Исправления для iOS */
+        input, select, textarea, button {
+            -webkit-appearance: none;
+            border-radius: 0;
+        }
+        
+        /* Улучшения для полноэкранного режима iOS */
+        @supports (-webkit-touch-callout: none) {
+            .container {
+                min-height: 100vh;
+                min-height: -webkit-fill-available;
+            }
+        }
+        
+        /* Улучшения для кнопок на iOS */
+        .btn, .save-real-score-btn, .keyboard-btn, .theme-toggle, .info-btn, .bookmaker-toggle, .instructions-btn {
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+        }
+        
+        /* Улучшения для скролла на iOS */
+        .history-list, .modal-content {
+            -webkit-overflow-scrolling: touch;
+        }
     </style>
 </head>
 <body>
@@ -1612,14 +1712,25 @@
                 </div>
             </div>
             
-            <div class="real-score-section">
+            <div class="real-score-section" id="real-score-section">
                 <div class="input-label">Реальный итоговый счет (после матча)</div>
                 <div class="real-score-inputs">
-                    <input type="text" class="input-field" id="real-score1" placeholder="0" min="0" inputmode="none" readonly>
+                    <input type="text" class="input-field" id="real-score1" placeholder="0" min="0" inputmode="none">
                     <div class="input-icon">:</div>
-                    <input type="text" class="input-field" id="real-score2" placeholder="0" min="0" inputmode="none" readonly>
+                    <input type="text" class="input-field" id="real-score2" placeholder="0" min="0" inputmode="none">
                     <button class="save-real-score-btn" id="save-real-score-btn">
                         <i class="fas fa-save"></i> Сохранить
+                    </button>
+                </div>
+                <!-- Блок для отображения успешного сохранения -->
+                <div id="real-score-success" style="display: none;"></div>
+                <!-- Блок для действий с реальным счетом -->
+                <div class="real-score-actions" id="real-score-actions" style="display: none;">
+                    <button class="real-score-edit-btn" id="real-score-edit-btn">
+                        <i class="fas fa-edit"></i> Изменить
+                    </button>
+                    <button class="real-score-clear-btn" id="real-score-clear-btn">
+                        <i class="fas fa-trash"></i> Очистить
                     </button>
                 </div>
             </div>
@@ -2276,6 +2387,11 @@
             const realScore1Input = document.getElementById('real-score1');
             const realScore2Input = document.getElementById('real-score2');
             const saveRealScoreBtn = document.getElementById('save-real-score-btn');
+            const realScoreSection = document.getElementById('real-score-section');
+            const realScoreSuccess = document.getElementById('real-score-success');
+            const realScoreActions = document.getElementById('real-score-actions');
+            const realScoreEditBtn = document.getElementById('real-score-edit-btn');
+            const realScoreClearBtn = document.getElementById('real-score-clear-btn');
             
             // Элементы обратной связи ML
             const predictionAccuracyEl = document.getElementById('prediction-accuracy');
@@ -2352,12 +2468,26 @@
                 leagueAccuracy: {},
                 recentPerformance: [],
                 trainedWithRealData: false,
-                trainingHistory: []
+                trainingHistory: [],
+                // НОВОЕ: Добавляем расширенные ML-данные
+                advancedStats: {
+                    totalTrainingSessions: 0,
+                    lastTrainingDate: null,
+                    modelVersion: "1.0",
+                    featureImportance: {
+                        deviation: 0.35,
+                        confidence: 0.25,
+                        league: 0.20,
+                        timeLeft: 0.15,
+                        period: 0.05
+                    }
+                }
             };
             let currentTheme = 'light';
             let lastPrediction = null;
             let activeInput = null;
             let formData = {};
+            let realScoreSaved = false;
             
             // Инициализация
             initializeApp();
@@ -2418,6 +2548,10 @@
                 saveRealScoreBtn.addEventListener('click', saveRealScore);
                 restoreDataBtn.addEventListener('click', restoreFormData);
                 
+                // Обработчики для реального счета
+                realScoreEditBtn.addEventListener('click', editRealScore);
+                realScoreClearBtn.addEventListener('click', clearRealScore);
+                
                 // ML переключатель
                 mlToggle.addEventListener('change', function() {
                     mlData.enabled = this.checked;
@@ -2465,9 +2599,52 @@
                 loadMLData();
                 loadTheme();
                 loadFormData();
+                checkRealScoreStatus();
                 
                 // Первоначальный расчет
                 autoCalculate();
+            }
+            
+            function checkRealScoreStatus() {
+                const savedRealScore = localStorage.getItem('betAnalyzerRealScore');
+                if (savedRealScore) {
+                    const realScoreData = JSON.parse(savedRealScore);
+                    realScore1Input.value = realScoreData.score1 || '';
+                    realScore2Input.value = realScoreData.score2 || '';
+                    realScoreSaved = true;
+                    updateRealScoreUI();
+                }
+            }
+            
+            function updateRealScoreUI() {
+                if (realScoreSaved) {
+                    realScoreSection.classList.add('real-score-saved');
+                    realScoreActions.style.display = 'flex';
+                    saveRealScoreBtn.style.display = 'none';
+                    realScore1Input.readOnly = true;
+                    realScore2Input.readOnly = true;
+                } else {
+                    realScoreSection.classList.remove('real-score-saved');
+                    realScoreActions.style.display = 'none';
+                    saveRealScoreBtn.style.display = 'block';
+                    realScore1Input.readOnly = false;
+                    realScore2Input.readOnly = false;
+                }
+            }
+            
+            function editRealScore() {
+                realScoreSaved = false;
+                updateRealScoreUI();
+                realScoreSuccess.style.display = 'none';
+            }
+            
+            function clearRealScore() {
+                realScore1Input.value = '';
+                realScore2Input.value = '';
+                realScoreSaved = false;
+                updateRealScoreUI();
+                realScoreSuccess.style.display = 'none';
+                localStorage.removeItem('betAnalyzerRealScore');
             }
             
             function showCustomKeyboard(e) {
@@ -2821,13 +2998,13 @@
                 if (historyItem.mlTrained) {
                     detailMlTrainingSection.style.display = 'block';
                     
-                    // Рассчитываем влияние на обучение ML
-                    const mlWeight = Math.min(100, Math.max(5, (historyItem.confidence / 30) * 100));
-                    const mlImpact = mlWeight * (historyItem.mlBoost || 0) / 100;
+                    // РАСШИРЕННЫЙ РАСЧЕТ ML-СТАТИСТИКИ
+                    const mlWeight = calculateMLWeight(historyItem);
+                    const mlImpact = calculateMLImpact(historyItem);
                     const mlAdjustment = historyItem.mlBoost || 0;
                     
                     detailMlWeightEl.textContent = `${mlWeight.toFixed(1)}%`;
-                    detailMlImpactEl.textContent = `${mlImpact.toFixed(2)}%`;
+                    detailMlImpactEl.textContent = `${mlImpact > 0 ? '+' : ''}${mlImpact.toFixed(2)}%`;
                     detailMlAdjustmentEl.textContent = `${mlAdjustment > 0 ? '+' : ''}${mlAdjustment.toFixed(2)}%`;
                     detailMlStatusEl.textContent = "Обучено";
                     detailMlStatusEl.className = "training-value positive";
@@ -2838,6 +3015,56 @@
                 // Открываем модальное окно
                 historyDetailModal.classList.add('active');
                 document.body.style.overflow = 'hidden';
+            }
+            
+            // НОВАЯ ФУНКЦИЯ: Расчет веса в обучении ML
+            function calculateMLWeight(historyItem) {
+                if (!historyItem.mlTrained) return 0;
+                
+                // Базовый вес на основе уверенности
+                let weight = Math.min(100, (historyItem.confidence / 30) * 100);
+                
+                // Увеличиваем вес для правильных прогнозов
+                if (historyItem.recommendationCorrect) {
+                    weight *= 1.2;
+                }
+                
+                // Учитываем точность прогноза
+                if (historyItem.predictionAccuracy) {
+                    weight *= (historyItem.predictionAccuracy / 100);
+                }
+                
+                // Учитываем давность (новые данные важнее)
+                const daysAgo = (Date.now() - historyItem.id) / (1000 * 60 * 60 * 24);
+                const recencyFactor = Math.max(0.5, 1 - (daysAgo / 30)); // Данные старше 30 дней имеют вес 50%
+                weight *= recencyFactor;
+                
+                return Math.min(100, weight);
+            }
+            
+            // НОВАЯ ФУНКЦИЯ: Расчет влияния на точность ML
+            function calculateMLImpact(historyItem) {
+                if (!historyItem.mlTrained) return 0;
+                
+                let impact = 0;
+                
+                // Базовое влияние на основе веса
+                const weight = calculateMLWeight(historyItem);
+                impact += weight * 0.1;
+                
+                // Влияние на основе правильности рекомендации
+                if (historyItem.recommendationCorrect) {
+                    impact += 2.5;
+                } else {
+                    impact -= 1.5;
+                }
+                
+                // Влияние на основе точности прогноза
+                if (historyItem.predictionAccuracy) {
+                    impact += (historyItem.predictionAccuracy - 85) * 0.05;
+                }
+                
+                return impact;
             }
             
             function closeHistoryDetailModal() {
@@ -2933,6 +3160,7 @@
                     lineTotal: lineTotal,
                     predictedTotal: predictedTotal,
                     betType: currentBetType,
+                    league: currentLeague,
                     timestamp: new Date()
                 };
                 
@@ -3169,6 +3397,10 @@
                 mlData.leagueAccuracy[currentLeague].accuracy = mlData.accuracy;
                 mlData.leagueAccuracy[currentLeague].factor = 0.9 + (mlData.accuracy * 0.2);
                 
+                // НОВОЕ: Обновляем расширенную статистику ML
+                mlData.advancedStats.totalTrainingSessions++;
+                mlData.advancedStats.lastTrainingDate = new Date();
+                
                 // Сохраняем историю обучения
                 mlData.trainingHistory.push({
                     timestamp: new Date(),
@@ -3204,14 +3436,33 @@
                 saveMLData();
                 updateMLStatus();
                 
-                // Очищаем поля реального счета
-                realScore1Input.value = '';
-                realScore2Input.value = '';
+                // Сохраняем реальный счет
+                const realScoreData = {
+                    score1: realScore1,
+                    score2: realScore2,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('betAnalyzerRealScore', JSON.stringify(realScoreData));
+                
+                realScoreSaved = true;
+                updateRealScoreUI();
+                
+                // Показываем сообщение об успехе
+                realScoreSuccess.style.display = 'flex';
+                realScoreSuccess.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <span>Реальный счет сохранен! Точность прогноза: ${predictionAccuracy.toFixed(2)}%</span>
+                `;
                 
                 // Сохраняем обновленные данные формы
                 saveFormData();
                 
-                alert(`Реальный счет сохранен!\nТочность прогноза: ${predictionAccuracy.toFixed(2)}%\nРекомендация: ${recommendationCorrect ? 'ПРАВИЛЬНАЯ' : 'НЕПРАВИЛЬНАЯ'}`);
+                // Автоматически запускаем обучение ML, если есть достаточно данных
+                if (calculationHistory.filter(item => item.realTotal !== undefined).length >= 3) {
+                    setTimeout(() => {
+                        trainMLModel();
+                    }, 1000);
+                }
             }
             
             function updateMLFeedback(predictionAccuracy, recommendationCorrect, predictionError) {
@@ -3248,7 +3499,7 @@
                     return;
                 }
                 
-                // Реальное обучение ML модели на основе истории с реальными результатами
+                // РЕАЛЬНОЕ ОБУЧЕНИЕ ML МОДЕЛИ
                 const trainingData = calculationHistory.filter(item => item.realTotal !== undefined);
                 
                 if (trainingData.length < 3) {
@@ -3274,7 +3525,7 @@
                 const avgError = totalError / trainingData.length;
                 const accuracy = correctPredictions / trainingData.length;
                 
-                // Обновляем ML данные
+                // ОБНОВЛЯЕМ ML ДАННЫЕ С РЕАЛЬНЫМ ОБУЧЕНИЕМ
                 mlData.accuracy = accuracy;
                 mlData.totalPredictions = trainingData.length;
                 mlData.correctPredictions = correctPredictions;
@@ -3293,11 +3544,27 @@
                 mlData.leagueAccuracy[currentLeague].accuracy = accuracy;
                 mlData.leagueAccuracy[currentLeague].factor = 0.9 + (accuracy * 0.2);
                 
+                // НОВОЕ: Обновляем расширенную статистику ML
+                mlData.advancedStats.totalTrainingSessions++;
+                mlData.advancedStats.lastTrainingDate = new Date();
+                mlData.advancedStats.modelVersion = "1." + mlData.advancedStats.totalTrainingSessions;
+                
+                // НОВОЕ: Обновляем ML-статистику для всех элементов истории
+                calculationHistory.forEach(item => {
+                    if (item.realTotal !== undefined) {
+                        item.mlTrained = true;
+                    }
+                });
+                
                 saveMLData();
                 updateMLStatus();
                 
+                // Перерисовываем историю с обновленными данными
+                renderHistory();
+                saveHistory();
+                
                 // Показываем результат обучения
-                alert(`ML модель обучена!\nТочность: ${(accuracy * 100).toFixed(2)}%\nСредняя ошибка: ${avgError.toFixed(2)} очков\nКорректировка: +${((mlData.adjustmentFactor - 1) * 100).toFixed(2)}%`);
+                alert(`🎓 ML модель обучена!\n\n📊 Точность: ${(accuracy * 100).toFixed(2)}%\n📈 Средняя ошибка: ${avgError.toFixed(2)} очков\n⚡ Корректировка: +${((mlData.adjustmentFactor - 1) * 100).toFixed(2)}%\n\n🤖 Модель v${mlData.advancedStats.modelVersion} готова к работе!`);
                 
                 // Пересчитываем текущий прогноз с обновленной ML моделью
                 autoCalculate();
