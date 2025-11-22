@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon222.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon203.png">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSK10.1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#2c3e50">
     <title>Анализатор ставок PRO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Добавляем TensorFlow.js для реального ML -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <style>
         /* Все стили остаются без изменений */
         * {
@@ -18,6 +20,10 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
         :root {
@@ -68,6 +74,9 @@
         html {
             height: 100%;
             background: var(--background);
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            touch-action: manipulation;
         }
         
         body {
@@ -83,6 +92,8 @@
             transition: background 0.5s ease, color 0.5s ease;
             padding: 0;
             margin: 0;
+            touch-action: pan-x pan-y;
+            -webkit-user-drag: none;
         }
         
         .container {
@@ -208,6 +219,10 @@
             appearance: none;
             caret-color: transparent;
             cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
         .input-field:focus {
@@ -1595,9 +1610,9 @@
                     <div class="input-group">
                         <label class="input-label">Текущий счет</label>
                         <div class="input-row">
-                            <input type="text" class="input-field" id="score1" placeholder="0" min="0" inputmode="none" readonly>
+                            <input type="text" class="input-field" id="score1" placeholder="0" min="0" inputmode="none">
                             <div class="input-icon">:</div>
-                            <input type="text" class="input-field" id="score2" placeholder="0" min="0" inputmode="none" readonly>
+                            <input type="text" class="input-field" id="score2" placeholder="0" min="0" inputmode="none">
                         </div>
                     </div>
                     
@@ -1614,15 +1629,15 @@
                     <div class="input-group">
                         <label class="input-label">Время в четверти</label>
                         <div class="input-row">
-                            <input type="text" class="input-field" id="minutes" placeholder="мин" min="0" max="12" inputmode="none" readonly>
+                            <input type="text" class="input-field" id="minutes" placeholder="мин" min="0" max="12" inputmode="none">
                             <div class="input-icon">:</div>
-                            <input type="text" class="input-field" id="seconds" placeholder="сек" min="0" max="59" inputmode="none" readonly>
+                            <input type="text" class="input-field" id="seconds" placeholder="сек" min="0" max="59" inputmode="none">
                         </div>
                     </div>
                     
                     <div class="input-group">
                         <label class="input-label">Тотал букмекера</label>
-                        <input type="text" class="input-field" id="line-total" placeholder="215.5" step="0.1" inputmode="none" readonly>
+                        <input type="text" class="input-field" id="line-total" placeholder="215.5" step="0.1" inputmode="none">
                     </div>
                 </div>
                 
@@ -1676,9 +1691,9 @@
             <div class="real-score-section" id="real-score-section">
                 <div class="input-label">Реальный итоговый счет (после матча)</div>
                 <div class="real-score-inputs">
-                    <input type="text" class="input-field" id="real-score1" placeholder="0" min="0" inputmode="none" readonly>
+                    <input type="text" class="input-field" id="real-score1" placeholder="0" min="0" inputmode="none">
                     <div class="input-icon">:</div>
-                    <input type="text" class="input-field" id="real-score2" placeholder="0" min="0" inputmode="none" readonly>
+                    <input type="text" class="input-field" id="real-score2" placeholder="0" min="0" inputmode="none">
                     <button class="save-real-score-btn" id="save-real-score-btn">
                         <i class="fas fa-save"></i> Сохранить
                     </button>
@@ -2064,8 +2079,16 @@
                         <span class="training-value" id="detail-ml-impact">0%</span>
                     </div>
                     <div class="training-item">
-                        <span class="training-label">Корректировка ML:</span>
-                        <span class="training-value" id="detail-ml-adjustment">0%</span>
+                        <span class="training-label">Историческая корректировка ML:</span>
+                        <span class="training-value" id="detail-historical-ml-adjustment">0%</span>
+                    </div>
+                    <div class="training-item">
+                        <span class="training-label">Текущая корректировка ML:</span>
+                        <span class="training-value" id="detail-current-ml-adjustment">0%</span>
+                    </div>
+                    <div class="training-item">
+                        <span class="training-label">Изменение корректировки:</span>
+                        <span class="training-value" id="detail-ml-adjustment-change">0%</span>
                     </div>
                     <div class="training-item">
                         <span class="training-label">Статус обучения:</span>
@@ -2410,6 +2433,9 @@
             const detailMlImpactEl = document.getElementById('detail-ml-impact');
             const detailMlAdjustmentEl = document.getElementById('detail-ml-adjustment');
             const detailMlStatusEl = document.getElementById('detail-ml-status');
+            const detailHistoricalMlAdjustmentEl = document.getElementById('detail-historical-ml-adjustment');
+            const detailCurrentMlAdjustmentEl = document.getElementById('detail-current-ml-adjustment');
+            const detailMlAdjustmentChangeEl = document.getElementById('detail-ml-adjustment-change');
             
             // Элементы кастомной клавиатуры
             const customKeyboard = document.getElementById('custom-keyboard');
@@ -2964,9 +2990,31 @@
                     const mlImpact = calculateMLImpact(historyItem);
                     const mlAdjustment = historyItem.mlBoost || 0;
                     
+                    // Рассчитываем текущую корректировку ML для этого элемента
+                    const deviation = historyItem.predictedTotal - historyItem.lineTotal;
+                    const confidenceResult = calculateConfidenceAdjustment(deviation, historyItem.betType);
+                    let currentMLBoost = 0;
+                    if (mlData.enabled && mlData.totalPredictions > 5) {
+                        const mlCorrectionResult = applyMLCorrection(confidenceResult, historyItem.league);
+                        currentMLBoost = mlCorrectionResult.mlBoost;
+                    }
+                    
+                    const change = currentMLBoost - mlAdjustment;
+                    
                     detailMlWeightEl.textContent = `${mlWeight.toFixed(1)}%`;
                     detailMlImpactEl.textContent = `${mlImpact > 0 ? '+' : ''}${mlImpact.toFixed(2)}%`;
-                    detailMlAdjustmentEl.textContent = `${mlAdjustment > 0 ? '+' : ''}${mlAdjustment.toFixed(2)}%`;
+                    detailHistoricalMlAdjustmentEl.textContent = `${mlAdjustment > 0 ? '+' : ''}${mlAdjustment.toFixed(2)}%`;
+                    detailCurrentMlAdjustmentEl.textContent = `${currentMLBoost > 0 ? '+' : ''}${currentMLBoost.toFixed(2)}%`;
+                    detailMlAdjustmentChangeEl.textContent = `${change > 0 ? '+' : ''}${change.toFixed(2)}%`;
+                    
+                    if (change > 0) {
+                        detailMlAdjustmentChangeEl.className = "training-value positive";
+                    } else if (change < 0) {
+                        detailMlAdjustmentChangeEl.className = "training-value negative";
+                    } else {
+                        detailMlAdjustmentChangeEl.className = "training-value";
+                    }
+                    
                     detailMlStatusEl.textContent = "Обучено";
                     detailMlStatusEl.className = "training-value positive";
                 } else {
@@ -3567,7 +3615,6 @@
                 // Обновляем детали
                 paceValueEl.textContent = `${currentPace.toFixed(2)} оч/мин`;
                 timeLeftEl.textContent = `${totalRemainingMinutes.toFixed(2)} мин`;
-                thresholdValueEl.textContent = "5.0 оч";
             }
             
             function saveToHistoryList(score1, score2, period, minutes, seconds, predictedTotal, lineTotal, betType, confidenceResult, mlBoost) {
